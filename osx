@@ -512,6 +512,18 @@ example() {
   fi
 }
 
+# --------------------------------------------------------------------- Airport
+
+desc apinfo <<EOM
+Usage:
+  $_me apinfo
+
+Show the current airport status.
+EOM
+apinfo() {
+  /System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport --getinfo
+}
+
 ###############################################################################
 # Run Program
 ###############################################################################
