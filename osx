@@ -609,6 +609,19 @@ ql() {
   qlmanage -p "$*" > /dev/null 2>&1
 }
 
+# ----------------------------------------------------------------------- Trash
+
+desc emptytrash <<EOM
+Usage:
+  $_me emptytrash
+
+Empty the Trash on all mounted volumes and the main HDD.
+EOM
+emptytrash() {
+  sudo rm -rfv /Volumes/*/.Trashes
+  sudo rm -rfv ~/.Trash
+}
+
 # --------------------------------------------------------------------- Updates
 
 desc update_apps <<EOM
