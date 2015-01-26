@@ -544,6 +544,21 @@ volume() {
   esac
 }
 
+# ------------------------------------------------------------------------- DNS
+
+desc flushdns <<EOM
+Usage:
+  $_me flushdns
+
+Flush Directory Service cache
+EOM
+flushdns() {
+  # pre-yosemite
+  # need os x version checking to use properly
+  #dscacheutil -flushcache && killall -HUP mDNSResponder
+  sudo discoveryutil mdnsflushcache && sudo discoveryutil udnsflushcaches
+}
+
 ###############################################################################
 # Run Program
 ###############################################################################
