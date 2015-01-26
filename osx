@@ -585,6 +585,18 @@ jsc() {
   fi
 }
 
+# ----------------------------------------------------------------- Preferences
+
+desc plistbuddy <<EOM
+Usage:
+  $_me plistbuddy <PlistBuddy arguments> [<PlistBuddy options>]
+
+PlistBuddy alias, because sometimes \`defaults\` just doesn’t cut it
+EOM
+plistbuddy() {
+  /usr/libexec/PlistBuddy "$@"
+}
+
 ###############################################################################
 # Run Program
 ###############################################################################
