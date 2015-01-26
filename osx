@@ -522,6 +522,28 @@ apinfo() {
   /System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport --getinfo
 }
 
+# ----------------------------------------------------------------------- Audio
+
+desc volume <<EOM
+Usage:
+  $_me volume ( <0-9> | <mute> )
+
+Set the audio volume to a cetain level or mute.
+EOM
+volume() {
+  case "$1" in
+    mute)
+      osascript -e "set volume output muted true"
+      ;;
+    [0-9])
+      osascript -e "set volume $1"
+      ;;
+    *)
+      _print_desc "volume"
+      ;;
+  esac
+}
+
 ###############################################################################
 # Run Program
 ###############################################################################
