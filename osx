@@ -609,6 +609,18 @@ ql() {
   qlmanage -p "$*" > /dev/null 2>&1
 }
 
+# --------------------------------------------------------------------- Updates
+
+desc update_apps <<EOM
+Usage:
+  $_me update_apps
+
+Get and install updates from the App Store.
+EOM
+update_apps() {
+  softwareupdate -i -a
+}
+
 ###############################################################################
 # Run Program
 ###############################################################################
