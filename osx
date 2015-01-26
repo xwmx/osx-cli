@@ -559,6 +559,32 @@ flushdns() {
   sudo discoveryutil mdnsflushcache && sudo discoveryutil udnsflushcaches
 }
 
+# ------------------------------------------------------------------ JavaScript
+
+desc jsc <<EOM
+Usage:
+  $_me jsc [filename.js]
+
+Run the JavaScriptCore.framework jsc REPL.
+
+If no argument is provided, launch an interactive REPL session. If a filename \
+is provided as the second argument, run that file with jsc.
+EOM
+jsc() {
+  _jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
+  if [ -e "$_jscbin" ]; then
+    _javascript_filename=$(_get_command_argument 1)
+    if [[ -z "$_javascript_filename" ]]; then
+      "$_jscbin"
+    else
+      _debug printf "jsc() \$_javascript_filename: %s\n" "$_javascript_filename"
+      "$_jscbin" "$_javascript_filename"
+    fi
+  else
+    printf "JavaScriptCore.framework not found.\n"
+  fi
+}
+
 ###############################################################################
 # Run Program
 ###############################################################################
