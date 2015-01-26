@@ -609,6 +609,40 @@ ql() {
   qlmanage -p "$*" > /dev/null 2>&1
 }
 
+# ------------------------------------------------------------------- Spotlight
+
+desc spotlight <<EOM
+Usage:
+  spotlight find      <filename>
+  spotlight filename  <filename>
+  spotlight content   <text>
+  spotlight disable
+  spotlight enable
+
+Spotlight searching and controls.
+EOM
+spotlight() {
+  case "$1" in
+    filename|find)
+      shift
+      mdfind "kMDItemDisplayName == '$*'wc"
+      ;;
+    content)
+      shift
+      mdfind -interpret "$*"
+      ;;
+    disable)
+      sudo mdutil -a -i off
+      ;;
+    enable)
+      sudo mdutil -a -i on
+      ;;
+    *)
+      _print_desc "spotlight"
+      ;;
+  esac
+}
+
 # ----------------------------------------------------------------------- Trash
 
 desc emptytrash <<EOM
