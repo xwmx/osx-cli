@@ -6,7 +6,7 @@
 # | (_) \__ \>  <  | (__| | |
 #  \___/|___/_/\_\  \___|_|_|
 #
-# Commands to control the "OS X" side of OS X.
+# Shortcuts for OS X operations.
 #
 # Copyright (c) 2015 William Melody • hi@williammelody.com
 
@@ -429,7 +429,7 @@ help() {
 | (_) \\__ \\>  <  | (__| | |
  \\___/|___/_/\\_\\  \\___|_|_|
 
-Commands to control the "OS X" side of OS X.
+Shortcuts for OS X operations.
 
 Version: $_VERSION
 
