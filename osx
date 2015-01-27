@@ -723,6 +723,18 @@ ql() {
   qlmanage -p "$*" > /dev/null 2>&1
 }
 
+# -------------------------------------------------------------------- Security
+
+desc afk <<EOM
+Usage:
+  $_me afk
+
+Lock the screen (when going AFK)
+EOM
+afk() {
+  "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
+}
+
 # ------------------------------------------------------------------- Spotlight
 
 desc spotlight <<EOM
