@@ -660,6 +660,18 @@ lscleanup() {
   /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
 }
 
+# ---------------------------------------------------------------------- Locate
+
+desc updatedb <<EOM
+Usage:
+  $_me updatedb
+
+Update the locate database.
+EOM
+updatedb() {
+  sudo /usr/libexec/locate.updatedb
+}
+
 # ----------------------------------------------------------------- Preferences
 
 desc plistbuddy <<EOM
