@@ -9,7 +9,7 @@
 # Commands to control the "OS X" side of OS X.
 
 ###############################################################################
-# Strict
+# Strict Mode
 ###############################################################################
 
 # Treat unset variables and parameters other than the special parameters ‘@’ or
