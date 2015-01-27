@@ -559,6 +559,69 @@ flushdns() {
   sudo discoveryutil mdnsflushcache && sudo discoveryutil udnsflushcaches
 }
 
+# ---------------------------------------------------------------------- Finder
+
+desc clean_ds_store <<EOM
+Usage:
+  $_me clean_ds_store
+
+Recursively delete \`.DS_Store\` files
+EOM
+clean_ds_store() {
+  find . -type f -name '*.DS_Store' -ls -delete
+}
+
+desc desktop <<EOM
+Usage:
+  $_me desktop ( hide | show )
+
+Hide/show all desktop icons (useful when presenting)
+EOM
+desktop() {
+  _arg=$(_get_command_argument 1)
+  case "$_arg" in
+    hide)
+      defaults write com.apple.finder CreateDesktop -bool false && \
+        killall Finder
+      ;;
+    show)
+      defaults write com.apple.finder CreateDesktop -bool true && \
+        killall Finder
+      ;;
+    *)
+      _print_desc "desktop"
+      ;;
+  esac
+}
+
+desc finder <<EOM
+Usage:
+  $_me finder hidden ( hide | show )
+
+Hide/show hidden files in the Finder.
+EOM
+finder() {
+  _target=$(_get_command_argument 1)
+  _action=$(_get_command_argument 2)
+  if [[ "$_target" != "hidden" ]]; then
+    _print_desc "finder"
+    exit 1
+  fi
+  case "$_action" in
+    hide)
+      defaults write com.apple.finder AppleShowAllFiles -bool false && \
+        killall Finder
+      ;;
+    show)
+      defaults write com.apple.finder AppleShowAllFiles -bool true && \
+        killall Finder
+      ;;
+    *)
+      _print_desc "finder"
+      ;;
+  esac
+}
+
 # ------------------------------------------------------------------ JavaScript
 
 desc jsc <<EOM
