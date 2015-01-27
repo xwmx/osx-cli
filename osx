@@ -622,6 +622,18 @@ finder() {
   esac
 }
 
+# --------------------------------------------------------------------- hdiutil
+
+desc eject <<EOM
+Usage:
+  $_me eject /Volumes/volname
+
+Ejects a given volume (eg, a disk image).
+EOM
+eject() {
+  hdiutil eject "$*"
+}
+
 # ------------------------------------------------------------------ JavaScript
 
 desc jsc <<EOM
