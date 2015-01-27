@@ -662,14 +662,21 @@ lscleanup() {
 
 # ---------------------------------------------------------------------- Locate
 
-desc updatedb <<EOM
+desc locate <<EOM
 Usage:
-  $_me updatedb
+  $_me locate updatedb
 
 Update the locate database.
+
+NOTE: prefer using \`spotlight\` commands rather than \`locate\`.
 EOM
-updatedb() {
-  sudo /usr/libexec/locate.updatedb
+locate() {
+  _action=$(_get_command_argument 1)
+  if [[ "$_action" == "updatedb" ]]; then
+    sudo /usr/libexec/locate.updatedb
+  else
+    _print_desc "locate"
+  fi
 }
 
 # ----------------------------------------------------------------- Preferences
