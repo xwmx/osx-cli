@@ -650,14 +650,22 @@ jsc() {
 
 # -------------------------------------------------------------- LaunchServices
 
-desc lscleanup <<EOM
+desc launch_services <<EOM
 Usage:
-  $_me lscleanup
+  $_me launch_services cleanup
 
 Clean up LaunchServices to remove duplicates in the “Open With” menu
 EOM
-lscleanup() {
-  /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder
+launch_services() {
+  _cmd_path="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+  _action=$(_get_command_argument 1)
+  if [[ "$_action" == "cleanup" ]]; then
+    "$_cmd_path" -kill -r -domain local -domain system -domain user && \
+      killall Finder
+  else
+    _print_desc "locate"
+  fi
+
 }
 
 # ---------------------------------------------------------------------- Locate
