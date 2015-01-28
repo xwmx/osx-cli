@@ -628,12 +628,12 @@ finder() {
 
 desc eject <<EOM
 Usage:
-  $_me eject /Volumes/volname
+  $_me eject volname
 
 Ejects a given volume (eg, a disk image).
 EOM
 eject() {
-  hdiutil eject "$*"
+  hdiutil eject "/Volumes/$*"
 }
 
 # ------------------------------------------------------------------ JavaScript
