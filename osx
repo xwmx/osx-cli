@@ -737,6 +737,18 @@ afk() {
   "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
 }
 
+# ----------------------------------------------------------------------- Sleep
+
+desc sleep <<EOM
+Usage:
+  $_me sleep
+
+Put the system to sleep immediately.
+EOM
+sleep() {
+  pmset sleepnow
+}
+
 # ------------------------------------------------------------------- Spotlight
 
 desc spotlight <<EOM
