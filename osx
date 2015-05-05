@@ -647,6 +647,14 @@ apinfo() {
 
 # ----------------------------------------------------------------------- Audio
 
+desc play <<EOM
+Alias for \`afplay\`
+$(printf "%s\n" "$(afplay -h 2>&1)" | sed s/afplay/"$_ME"\ play/g)
+EOM
+play() {
+  afplay "$*"
+}
+
 desc volume <<EOM
 Usage:
   $_ME volume (  <0-9> | <00-100> | mute | unmute )
