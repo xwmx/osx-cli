@@ -528,33 +528,50 @@ apinfo() {
 
 desc volume <<EOM
 Usage:
-  $_me volume (  <0-9> | <00-100> | mute )
+  $_me volume (  <0-9> | <00-100> | mute | unmute )
 
 Arguments:
   <none>    Print the current output volume level as a percent.
   <0-9>     Set the output volume to about the nearest tenth percent. Sometimes
             the actual number is slightly off for reasons unknown.
   <00-100>  Set the output volume to the specified percent.
-  mute      Set the output volume to 0.
+  mute      Mute output.
+  unmute    Unmute output.
 EOM
+_print_mute_state() {
+  local _mute_state
+  _mute_state=$(osascript -e "output muted of (get volume settings)")
+  printf "Mute: %s\n" "${_mute_state}"
+}
+_print_current_output_volume() {
+  local _volume
+  _volume=$(osascript -e "output volume of (get volume settings)")
+  printf "Output volume: %s%%\n" "${_volume}"
+}
 volume() {
   case "${1}" in
     mute)
       osascript -e "set volume output muted true"
+      _print_mute_state
+      ;;
+    unmute)
+      osascript -e "set volume output muted false"
+      _print_mute_state
       ;;
     *[0-9][0-9])
       osascript -e "set volume output volume ${1}"
+      _print_current_output_volume
       ;;
     [0-9])
       osascript -e "set volume output volume ${1}0"
+      _print_current_output_volume
       ;;
     *)
-      :
+      _print_current_output_volume
+      _print_mute_state
       ;;
   esac
-  local _volume
-  _volume=$(osascript -e "output volume of (get volume settings)")
-  printf "Output volume: %s%%\n" "${_volume}"
+
 }
 
 # ------------------------------------------------------------------------- DNS
