@@ -528,22 +528,33 @@ apinfo() {
 
 desc volume <<EOM
 Usage:
-  $_me volume ( <0-9> | <mute> )
+  $_me volume (  <0-9> | <00-100> | mute )
 
-Set the audio volume to a cetain level or mute.
+Arguments:
+  <none>    Print the current output volume level as a percent.
+  <0-9>     Set the output volume to about the nearest tenth percent. Sometimes
+            the actual number is slightly off for reasons unknown.
+  <00-100>  Set the output volume to the specified percent.
+  mute      Set the output volume to 0.
 EOM
 volume() {
-  case "$1" in
+  case "${1}" in
     mute)
       osascript -e "set volume output muted true"
       ;;
+    *[0-9][0-9])
+      osascript -e "set volume output volume ${1}"
+      ;;
     [0-9])
-      osascript -e "set volume $1"
+      osascript -e "set volume output volume ${1}0"
       ;;
     *)
-      _print_desc "volume"
+      :
       ;;
   esac
+  local _volume
+  _volume=$(osascript -e "output volume of (get volume settings)")
+  printf "Output volume: %s%%\n" "${_volume}"
 }
 
 # ------------------------------------------------------------------------- DNS
