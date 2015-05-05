@@ -988,16 +988,53 @@ sl() {
 
 # ----------------------------------------------------------------------- Trash
 
-desc emptytrash <<EOM
+desc trash <<EOM
 Usage:
-  $_ME emptytrash
+$_ME trash ( empty [--secure] [--all] | open )
 
-Description:
-  Empty the Trash on all mounted volumes and the main HDD.
+Subcommands:
+  empty  Empty the trash.
+  open   Open the trash folder in the finder.
+
+Options:
+  --secure  Use \`srm\` to securely delete trash contents.
+  --all     Empty trashes on all connected volumes.
 EOM
-emptytrash() {
-  sudo rm -rfv /Volumes/*/.Trashes
-  sudo rm -rfv ~/.Trash
+trash() {
+  local _subcommand=
+  local _secure=
+  local _all=
+  for arg in "${command_argv[@]:-}"; do
+    case "$arg" in
+      empty|open)
+        _subcommand="$arg"
+        ;;
+      --secure)
+        _secure=1
+        ;;
+      --all)
+        _all=1
+        ;;
+      *)
+        :
+        ;;
+    esac
+  done
+  if [[ "$_subcommand" = "open" ]];then
+    open "$HOME/.Trash"
+  elif [[ "$_subcommand" = "empty" ]]; then
+    local _trash_command="rm -rfv"
+    if [[ -n "$_secure" ]]; then
+      _trash_command="srm -rfvm"
+    fi
+
+    sudo "$_trash_command" ~/.Trash/
+    if [[ -n "$_all" ]]; then
+      sudo "$_trash_command" /Volumes/*/.Trashes
+    fi
+  else
+    _print_desc "trash"
+  fi
 }
 
 # --------------------------------------------------------------------- Updates
