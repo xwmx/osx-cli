@@ -729,7 +729,7 @@ battery() {
   done
 
   if [[ -n "$_long_status" ]]; then
-    ioreg -l -n AppleSmartBattery -r
+    ioreg -l -w 0 -n AppleSmartBattery -r
   else
     pmset -g batt
   fi
