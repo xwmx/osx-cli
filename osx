@@ -15,29 +15,50 @@
 ###############################################################################
 
 # Treat unset variables and parameters other than the special parameters ‘@’ or
-# ‘*’ as an error when performing parameter expansion. An error message will be
-# written to the standard error, and a non-interactive shell will exit.
+# ‘*’ as an error when performing parameter expansion. An 'unbound variable'
+# error message will be written to the standard error, and a non-interactive
+# shell will exit.
 #
 # This requires using parameter expansion to test for unset variables.
 #
 # http://www.gnu.org/software/bash/manual/bashref.html#Shell-Parameter-Expansion
 #
+# The two approaches that are probably the most appropriate are:
+#
+# ${parameter:-word}
+#   If parameter is unset or null, the expansion of word is substituted.
+#   Otherwise, the value of parameter is substituted. In other words, "word"
+#   acts as a default value when the value of "$parameter" is blank. If "word"
+#   is not present, then the default is blank (essentially an empty string).
+#
+# ${parameter:?word}
+#   If parameter is null or unset, the expansion of word (or a message to that
+#   effect if word is not present) is written to the standard error and the
+#   shell, if it is not interactive, exits. Otherwise, the value of parameter
+#   is substituted.
+#
 # Examples
 # ========
 #
-# Array:
+# Arrays:
 #
-#   ${some_array[@]:-}
-#   ${some_array[*]:-}
-#   ${some_array[0]:-}
+#   ${some_array[@]:-}              # blank default value
+#   ${some_array[*]:-}              # blank default value
+#   ${some_array[0]:-}              # blank default value
+#   ${some_array[0]:-default_value} # default value: the string 'default_value'
 #
-# Postitional variables:
+# Positional variables:
 #
-#   ${1:-alternative} # when a default value can be sepecified
-#   ${2:-}            # when the desired alternative is a blank / null
+#   ${1:-alternative} # default value: the string 'alternative'
+#   ${2:-}            # blank default value
+#
+# With an error message:
+#
+#   ${1:?'error message'}  # exit with 'error message' if variable is unbound
 #
 # Short form: set -u
 set -o nounset
+
 
 # Exit immediately if a pipeline returns non-zero.
 #
@@ -77,13 +98,32 @@ set -o pipefail
 # Set IFS to just newline and tab at the start
 #
 # http://www.dwheeler.com/essays/filenames-in-shell.html
-IFS="$(printf '\n\t')"
+#
+# $DEFAULT_IFS and $SAFER_IFS
+#
+# $DEFAULT_IFS contains the default $IFS value in case it's needed, such as
+# when expanding an array and you want to separate elements by spaces.
+# $SAFER_IFS contains the preferred settings for the program, and setting it
+# separately makes it easier to switch between the two if needed.
+#
+# NOTE: also printing $DEFAULT_IFS to /dev/null to avoid shellcheck warnings
+# about the variable being unused.
+DEFAULT_IFS="$IFS"; printf "%s" "$DEFAULT_IFS" > /dev/null
+SAFER_IFS="$(printf '\n\t')"
+# Then set $IFS
+IFS="$SAFER_IFS"
 
 ###############################################################################
 # Globals
 ###############################################################################
 
-_VERSION="1.0.0-alpha"
+_VERSION="0.1.0-alpha"
+
+# DEFAULT_COMMAND
+#
+# The command to be run by default, when no command name is specified. If the
+# environment has an existing $DEFAULT_COMMAND set, then that value is used.
+DEFAULT_COMMAND="${DEFAULT_COMMAND:-help}"
 
 ###############################################################################
 # Debug
@@ -91,17 +131,60 @@ _VERSION="1.0.0-alpha"
 
 # _debug()
 #
-# Shortcut for testing against the existence of a $debug variable. Primarily
-# intended to be used before a printf statement.
+# A simple function for executing a specified command if the `_use_debug`
+# variable has been set. The command is expected to print a message and
+# should typically be either `echo`, `printf`, or `cat`.
 #
 # Usage:
-#   _debug printf "Debug info"
+#   _debug printf "Debug info. Variable: %s\n" "$0"
 _debug() {
-  if [[ "${debug:-"0"}" -eq 1 ]]; then
+  if [[ "${_use_debug:-"0"}" -eq 1 ]]; then
+    # Prefix debug message with "bug (U+1F41B)"
     printf "🐛  "
     "$@"
     printf "――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――\n"
   fi
+}
+# debug()
+#
+# Print the specified message if the `_use_debug` variable has been set.
+#
+# This is a shortcut for the _debug() function that simply echos the message.
+#
+# Usage:
+#   debug "Debug info. Variable: $0"
+debug() {
+  _debug echo "$@"
+}
+
+###############################################################################
+# Die
+###############################################################################
+
+# _die()
+#
+# A simple function for exiting with an error after executing the specified
+# command. The command is expected to print a message and should typically
+# be either `echo`, `printf`, or `cat`.
+#
+# Usage:
+#   _die printf "Error message. Variable: %s\n" "$0"
+_die() {
+  # Prefix die message with "cross mark (U+274C)", often displayed as a red x.
+  printf "❌  "
+  "$@" 1>&2
+  exit 1
+}
+# die()
+#
+# Exit with an error and print the specified message.
+#
+# This is a shortcut for the _die() function that simply echos the message.
+#
+# Usage:
+#   die "Error message. Variable: $0"
+die() {
+  _die echo "$@"
 }
 
 ###############################################################################
@@ -111,16 +194,93 @@ _debug() {
 # Get raw options for any commands that expect them.
 raw_options="$*"
 
-# Initialize command options and arguments arrays.
+# Steps:
 #
-# These contain any options and arguments that will be used by the commands.
-# Commands handle their own argument and option checks using the created arrays.
-command_options=()
-command_arguments=()
-# Initialize $cmd and $debug, which can continue to be blank depending on what
-# the program needs.
+# 1. set expected short options in `optstring` at beginning of the "Normalize
+#    Options" section,
+# 2. parse options in while loop in the "Parse Options" section.
+
+# Normalize Options ###########################################################
+
+# Source:
+#   https://github.com/e36freak/templates/blob/master/options
+
+# The first loop, even though it uses 'optstring', will NOT check if an
+# option that takes a required argument has the argument provided. That must
+# be done within the second loop and case statement, yourself. Its purpose
+# is solely to determine that -oARG is split into -o ARG, and not -o -A -R -G.
+
+# Set short options -----------------------------------------------------------
+
+# option string, for short options.
+#
+# Very much like getopts, expected short options should be appended to the
+# string here. Any option followed by a ':' takes a required argument.
+#
+# In this example, `-x` and `-h` are regular short options, while `o` is
+# assumed to have an argument and will be split if joined with the string,
+# meaning `-oARG` would be split to `-o ARG`.
+optstring=h
+
+# Normalize -------------------------------------------------------------------
+
+# iterate over options, breaking -ab into -a -b and --foo=bar into --foo bar
+# also turns -- into --endopts to avoid issues with things like '-o-', the '-'
+# should not indicate the end of options, but be an invalid option (or the
+# argument to the option, such as wget -qO-)
+unset options
+# while the number of arguments is greater than 0
+while (($#)); do
+  case $1 in
+    # if option is of type -ab
+    -[!-]?*)
+      # loop over each character starting with the second
+      for ((i=1; i<${#1}; i++)); do
+        # extract 1 character from position 'i'
+        c=${1:i:1}
+        # add current char to options
+        options+=("-$c")
+
+        # if option takes a required argument, and it's not the last char
+        # make the rest of the string its argument
+        if [[ $optstring = *"$c:"* && ${1:i+1} ]]; then
+          options+=("${1:i+1}")
+          break
+        fi
+      done
+      ;;
+    # if option is of type --foo=bar, split on first '='
+    --?*=*) options+=("${1%%=*}" "${1#*=}");;
+    # end of options, stop breaking them up
+    --)
+      options+=(--endopts)
+      shift
+      options+=("$@")
+      break
+      ;;
+    # otherwise, nothing special
+    *) options+=("$1");;
+  esac
+
+  shift
+done
+# set new positional parameters to altered options. Set default to blank.
+set -- "${options[@]:-}"
+unset options
+
+# Parse Options ###############################################################
+
+# Initialize command_argv array
+#
+# This array contains all of the arguments that get passed along to each
+# command. This is essentially the same as the program arguments, minus those
+# that have been filtered out in the program option parsing loop. This array
+# is initialized with $0, which is the program's name.
+command_argv=("$0")
+# Initialize $cmd and $_use_debug, which can continue to be blank depending on
+# what the program needs.
 cmd=""
-debug=0
+_use_debug=0
 
 while [ $# -gt 0 ]; do
   opt="$1"
@@ -133,38 +293,40 @@ while [ $# -gt 0 ]; do
       cmd="version"
       ;;
     --debug)
-      debug=1
-      ;;
-    -*|--*)
-      command_options+=("$opt")
+      _use_debug=1
       ;;
     *)
       # The first non-option argument is assumed to be the command name.
       # All subsequent arguments are added to $command_arguments.
       if [[ -n $cmd ]]; then
-        command_arguments+=("$opt")
+        command_argv+=("$opt")
       else
-        cmd=$opt
+        cmd="$opt"
       fi
       ;;
   esac
 done
 
+# Set $command_parameters to $command_argv, minus the initial element, $0. This
+# provides an array that is equivalent to $* and $@ within each command
+# function, though the array is zero-indexed, which could lead to confusion.
+command_parameters=("${command_argv[@]:1}")
+
 _debug printf "\$cmd: %s\n" "$cmd"
 _debug printf "\$raw_options (one per line):\n%s\n" "$raw_options"
-_debug printf "\$command_options: %s\n" "${command_options[*]:-}"
-_debug printf "\$command_arguments: %s\n" "${command_arguments[*]:-}"
+_debug printf "\$command_argv: %s\n" "${command_argv[*]}"
+_debug printf "\$command_parameters: %s\n" "${command_parameters[*]:-}"
 
 ###############################################################################
 # Environment
 ###############################################################################
 
-# $_me
+# $_ME
 #
 # Set to the program's basename.
-_me=$(basename "$0")
+_ME=$(basename "$0")
 
-_debug printf "\$_me: %s\n" "$_me"
+_debug printf "\$_ME: %s\n" "$_ME"
 
 ###############################################################################
 # Load Commands
@@ -180,19 +342,37 @@ defined_commands=()
 # Usage:
 #   _load_commands
 _load_commands() {
+
   _debug printf "_load_commands(): entering...\n"
   _debug printf "_load_commands() declare -F:\n%s\n" "$(declare -F)"
-  function_list=($(declare -F))
+
+  # declare is a bash built-in shell function that, when called with the '-F'
+  # option, displays all of the functions with the format
+  # `declare -f function_name`. These are then assigned as elements in the
+  # $function_list array.
+  local function_list=($(declare -F))
+
   for c in "${function_list[@]}"
   do
+    # Each element has the format `declare -f function_name`, so set the name
+    # to only the 'function_name' part of the string.
+    local function_name
     function_name=$(printf "%s" "$c" | awk '{ print $3 }')
+
     _debug printf "_load_commands() \$function_name: %s\n" "$function_name"
-    if ! ( [[ "$function_name" =~ ^_(.*) ]] || \
-           [[ "$function_name" == "desc" ]]
+
+    # Add the function name to the $defined_commands array unless it starts
+    # with an underscore or is one of the desc(), debug(), or die() functions,
+    # since these are treated as having 'private' visibility.
+    if ! ( [[ "$function_name" =~ ^_(.*)  ]] || \
+           [[ "$function_name" == "desc"  ]] || \
+           [[ "$function_name" == "debug" ]] || \
+           [[ "$function_name" == "die"   ]]
     ); then
       defined_commands+=("$function_name")
     fi
   done
+
   _debug printf \
     "commands() \$defined_commands:\n%s\n" \
     "${defined_commands[*]:-}"
@@ -216,84 +396,20 @@ _main() {
 
   # If $cmd is blank, then set to help
   if [[ -z $cmd ]]; then
-    cmd="help"
+    cmd="$DEFAULT_COMMAND"
   fi
 
   # Load all of the commands.
   _load_commands
 
-  # Run the command and pass the command arguments.
+  # If the command is defined, run it, otherwise return an error.
   if ( _contains "$cmd" "${defined_commands[*]:-}" ); then
-    $cmd "${command_arguments[@]:-}"
+    # Pass all comment arguments to the program except for the first ($0).
+    $cmd "${command_parameters[@]:-}"
   else
-    printf "Unknown command: %s\n" "$cmd"
-    exit 1
+    _die printf "Unknown command: %s\n" "$cmd"
   fi
 }
-
-###############################################################################
-# Getters
-###############################################################################
-
-# _get_command_argument()
-#
-# Print the value of a command argument at the specified position. This is
-# simply an accessor for the command_arguments array.
-#
-# NOTE: index starts at 1, just like normal bash parameters.
-#
-# Usage:
-#   $(_get_command_argument 1)
-_get_command_argument() {
-  position="${1:-}"
-  if [[ -z "$position" ]]; then
-    printf "Error: _get_command_argument(): no value specified.\n"
-    exit 1
-  elif [[ "$position" -eq 0 ]]; then
-    _debug printf "_get_command_option(): Invalid 0 position.\n"
-    printf "0 is not valid because arguments start at '1'\n"
-    exit 1
-  else
-    position=$((position - 1))
-    printf \
-      "%s" \
-      "${command_arguments[${position:-}]:-}"
-  fi
-}
-
-_debug printf \
-  "\$(_get_command_argument 1): %s\n" \
-  "$(_get_command_argument 1)"
-
-# _get_command_option()
-#
-# Print the value of a command option at the specified position. This is
-# simply an accessor for the command_options array.
-#
-# NOTE: index starts at 1, just like normal bash parameters.
-#
-# Usage:
-#   $(_get_command_option 1)
-_get_command_option() {
-  position="${1:-}"
-  if [[ -z "$position" ]]; then
-    printf "Error: _get_command_option(): no value specified.\n"
-    exit 1
-  elif [[ "$position" -eq 0 ]]; then
-    _debug printf "_get_command_option(): Invalid 0 position.\n"
-    printf "0 is not valid because arguments start at '1'\n"
-    exit 1
-  else
-    position=$((position - 1))
-    printf \
-      "%s" \
-      "${command_options[${position:-}]:-}"
-  fi
-}
-
-_debug printf \
-  "\$(_get_command_option 1): %s\n" \
-  "$(_get_command_option 1)"
 
 ###############################################################################
 # Utility Functions
@@ -314,8 +430,8 @@ _function_exists() {
 # Usage:
 #   _contains "$item" "${list[*]}"
 _contains() {
-  _test_list=(${*:2})
-  for _test_element in "${_test_list[@]:-}"
+  local test_list=(${*:2})
+  for _test_element in "${test_list[@]:-}"
   do
     _debug printf "_contains() \$_test_element: %s\n" "$_test_element"
     if [[ "$_test_element" == "$1" ]]; then
@@ -326,26 +442,38 @@ _contains() {
   return 1
 }
 
-# _commnd_options_include()
+# _join()
 #
-# Takes a possible command option and determines whether it is included in
-# the command option list.
+# Takes a separator and a list of items, joining that list of items with the
+# separator.
 #
 # Usage:
-#   _command_options_include "--an-option"
-_command_options_include() {
-  _contains "$1" "${command_options[*]:-}"
+#   _join "," a b c
+#   _join "${an_array[@]}"
+_join() {
+  local separator
+  local target_array
+  local dirty
+  local clean
+  separator="$1"
+  target_array=(${@:2})
+  dirty="$(printf "${separator}%s"  "${target_array[@]}")"
+  clean="${dirty:${#separator}}"
+  printf "%s" "${clean}"
 }
 
-# _commnd_arguments_include()
+# _command_argv_includes()
 #
 # Takes a possible command argument and determines whether it is included in
 # the command argument list.
 #
+# This is a shortcut for simple cases where a command wants to check for the
+# presence of options quickly without parsing the options again.
+#
 # Usage:
-#   _command_arguments_include "an_argument"
-_command_arguments_include() {
-  _contains "$1" "${command_arguments[*]:-}"
+#   _command_argv_includes "an_argument"
+_command_argv_includes() {
+  _contains "$1" "${command_argv[*]}"
 }
 
 ###############################################################################
@@ -362,9 +490,24 @@ _command_arguments_include() {
 #
 # To make the description text available to other functions, desc() assigns the
 # text to a variable with the format $_desc_function_name
+#
+# NOTE:
+#
+# The `read` form of assignment is used for a balance of ease of
+# implementation and simplicity. There is an alternative assignment form
+# that could be used here:
+#
+# var="$(cat <<'EOM'
+# some message
+# EOM
+# )
+#
+# However, this form appears to require trailing space after backslases to
+# preserve newlines, which is unexpected. Using `read` simply requires
+# escaping backslashes, which is more common.
 desc() {
   set +e
-  [[ -z $1 ]] && printf "desc: No command name specified.\n" && exit 1
+  [[ -z $1 ]] && _die printf "desc: No command name specified.\n"
   if [[ -n ${2:-} ]]; then
     read -d '' "_desc_$1" <<EOM
 $2
@@ -385,7 +528,7 @@ EOM
 # Prints the description for a given command, provided the description has been
 # set using the desc() function.
 _print_desc() {
-  var="_desc_$1"
+  local var="_desc_$1"
   if [[ -n ${!var:-} ]]; then
     printf "%s\n" "${!var}"
   else
@@ -401,12 +544,12 @@ _print_desc() {
 
 desc version <<EOM
 Usage:
-  $_me version
-  $_me --version
+  $_ME ( version | --version )
 
-Display the current program version.
+Description:
+  Display the current program version.
 
-To save you the trouble, the current version is $_VERSION
+  To save you the trouble, the current version is $_VERSION
 EOM
 version() {
   printf "%s\n" "$_VERSION"
@@ -416,12 +559,13 @@ version() {
 
 desc help <<EOM
 Usage:
-  $_me help [<command>]
+  $_ME help [<command>]
 
-Display help information for $_me or a specified command
+Description:
+  Display help information for $_ME or a specified command.
 EOM
 help() {
-  if [[ ${#command_arguments[@]:-} = 0 ]]; then
+  if [[ ${#command_argv[@]} = 1 ]]; then
     cat <<EOM
                        _ _
   ___  _____  __   ___| (_)
@@ -434,10 +578,12 @@ Shortcuts for OS X operations.
 Version: $_VERSION
 
 Usage:
-  $_me command [<command-arguments>]
+  $_ME <command> [--command-options] [<arguments>]
+  $_ME -h | --help
+  $_ME --version
 
 Help:
-  $_me help [<command>]
+  $_ME help [<command>]
 
 $(commands)
 EOM
@@ -450,16 +596,20 @@ EOM
 
 desc commands <<EOM
 Usage:
-  $_me commands [--raw]
+  $_ME commands [--raw]
 
-Display the list of available commands.
+Options:
+  --raw  Display the command list without formatting.
+
+Description:
+  Display the list of available commands.
 EOM
 commands() {
-  if _command_options_include "--raw"; then
-    printf "%s\n" "${defined_commands[@]:-}"
+  if _command_argv_includes "--raw"; then
+    printf "%s\n" "${defined_commands[@]}"
   else
     printf "Available commands:\n"
-    printf "  %s\n" "${defined_commands[@]:-}"
+    printf "  %s\n" "${defined_commands[@]}"
   fi
 }
 
@@ -486,7 +636,7 @@ commands() {
 
 desc apinfo <<EOM
 Usage:
-  $_me apinfo
+  $_ME apinfo
 
 Description:
   Show the current airport status.
@@ -499,7 +649,7 @@ apinfo() {
 
 desc volume <<EOM
 Usage:
-  $_me volume (  <0-9> | <00-100> | mute | unmute )
+  $_ME volume (  <0-9> | <00-100> | mute | unmute )
 
 Arguments:
   <none>    Print the current output volume level as a percent.
@@ -549,7 +699,7 @@ volume() {
 
 desc battery <<EOM
 Usage:
-  $_me battery [-l|--long]
+  $_ME battery [-l|--long]
 
 Options:
   -l --long  Print longform information about the battery status.
@@ -559,7 +709,7 @@ Description:
 EOM
 battery() {
   local _long_status=
-  for arg in "${command_options[@]:-}"; do
+  for arg in "${command_argv[@]:-}"; do
     case $arg in
       -l|--long)
         _long_status=1
@@ -581,7 +731,7 @@ battery() {
 
 desc flushdns <<EOM
 Usage:
-  $_me flushdns
+  $_ME flushdns
 
 Description:
   Flush Directory Service cache.
@@ -597,7 +747,7 @@ flushdns() {
 
 desc clean_ds_store <<EOM
 Usage:
-  $_me clean_ds_store
+  $_ME clean_ds_store
 
 Description:
   Recursively delete \`.DS_Store\` files
@@ -608,7 +758,7 @@ clean_ds_store() {
 
 desc desktop <<EOM
 Usage:
-  $_me desktop ( hide | show )
+  $_ME desktop ( hide | show )
 
 Description:
   Hide/show all desktop icons (useful when presenting).
@@ -632,14 +782,14 @@ desktop() {
 
 desc finder <<EOM
 Usage:
-  $_me finder hidden ( hide | show )
+  $_ME finder hidden ( hide | show )
 
 Description:
   Hide/show hidden files in the Finder.
 EOM
 finder() {
-  _target=$(_get_command_argument 1)
-  _action=$(_get_command_argument 2)
+  _target="$1"
+  _action="$2"
   if [[ "$_target" != "hidden" ]]; then
     _print_desc "finder"
     exit 1
@@ -663,7 +813,7 @@ finder() {
 
 desc eject <<EOM
 Usage:
-  $_me eject volname
+  $_ME eject volname
 
 Description:
   Ejects a given volume (eg, a disk image).
@@ -676,7 +826,7 @@ eject() {
 
 desc jsc <<EOM
 Usage:
-  $_me jsc [filename.js]
+  $_ME jsc [filename.js]
 
 Description:
   Run the JavaScriptCore.framework jsc REPL.
@@ -687,7 +837,7 @@ EOM
 jsc() {
   _jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
   if [ -e "$_jscbin" ]; then
-    _javascript_filename=$(_get_command_argument 1)
+    _javascript_filename="$1"
     if [[ -z "$_javascript_filename" ]]; then
       "$_jscbin"
     else
@@ -703,14 +853,14 @@ jsc() {
 
 desc launch_services <<EOM
 Usage:
-  $_me launch_services cleanup
+  $_ME launch_services cleanup
 
 Description:
   Clean up LaunchServices to remove duplicates in the "Open With" menu.
 EOM
 launch_services() {
   _cmd_path="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
-  _action=$(_get_command_argument 1)
+  _action="$1"
   if [[ "$_action" == "cleanup" ]]; then
     "$_cmd_path" -kill -r -domain local -domain system -domain user && \
       killall Finder
@@ -724,7 +874,7 @@ launch_services() {
 
 desc locate <<EOM
 Usage:
-  $_me locate updatedb
+  $_ME locate updatedb
 
 Description:
   Update the locate database.
@@ -732,7 +882,7 @@ Description:
   NOTE: prefer using \`spotlight\` commands rather than \`locate\`.
 EOM
 locate() {
-  _action=$(_get_command_argument 1)
+  _action="$1"
   if [[ "$_action" == "updatedb" ]]; then
     sudo /usr/libexec/locate.updatedb
   else
@@ -744,7 +894,7 @@ locate() {
 
 desc plistbuddy <<EOM
 Usage:
-  $_me plistbuddy <PlistBuddy arguments> [<PlistBuddy options>]
+  $_ME plistbuddy <PlistBuddy arguments> [<PlistBuddy options>]
 
 Description:
   PlistBuddy alias, because sometimes \`defaults\` just doesn’t cut it.
@@ -757,7 +907,7 @@ plistbuddy() {
 
 desc ql <<EOM
 Usage:
-  $_me ql <item>
+  $_ME ql <item>
 
 Description:
   Open items with Quick Look.
@@ -770,7 +920,7 @@ ql() {
 
 desc afk <<EOM
 Usage:
-  $_me afk
+  $_ME afk
 
 Description:
   Lock the screen (when going AFK)
@@ -783,7 +933,7 @@ afk() {
 
 desc sleep <<EOM
 Usage:
-  $_me sleep
+  $_ME sleep
 
 Description:
   Put the system to sleep immediately.
@@ -833,14 +983,14 @@ Description:
   function. See \`help spotlight\` for usage information.
 EOM
 sl() {
-  $_me spotlight "$@"
+  $_ME spotlight "$@"
 }
 
 # ----------------------------------------------------------------------- Trash
 
 desc emptytrash <<EOM
 Usage:
-  $_me emptytrash
+  $_ME emptytrash
 
 Description:
   Empty the Trash on all mounted volumes and the main HDD.
@@ -854,7 +1004,7 @@ emptytrash() {
 
 desc update_apps <<EOM
 Usage:
-  $_me update_apps
+  $_ME update_apps
 
 Description:
   Get and install updates from the App Store.
