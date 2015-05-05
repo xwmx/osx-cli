@@ -813,12 +813,15 @@ finder() {
 
 desc eject <<EOM
 Usage:
-  $_ME eject volname
+  $_ME eject <volname>
 
 Description:
   Ejects a given volume (eg, a disk image).
 EOM
 eject() {
+  if [[ -z "$1" ]]; then
+    _die _print_desc "eject"
+  fi
   hdiutil eject "/Volumes/$*"
 }
 
@@ -826,7 +829,7 @@ eject() {
 
 desc jsc <<EOM
 Usage:
-  $_ME jsc [filename.js]
+  $_ME jsc [<filename.js>]
 
 Description:
   Run the JavaScriptCore.framework jsc REPL.
