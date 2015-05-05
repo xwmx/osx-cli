@@ -775,22 +775,26 @@ battery() {
     esac
   done
 
-  if [[ "$_subcommand" = "status" ]]; then
-    if [[ -n "$_long_status" ]]; then
-      ioreg -l -w 0 -n AppleSmartBattery -r
-    else
-      pmset -g batt
-    fi
-  elif [[ "$_subcommand" = "cycles" ]]; then
-    _ioreg_property AppleSmartBattery CycleCount
-  elif [[ "$_subcommand" = "health" ]]; then
-    local _design
-    local _current
-    _design="$(_ioreg_property AppleSmartBattery DesignCapacity)"
-    _current="$(_ioreg_property AppleSmartBattery CurrentCapacity)"
-    _health_percentage="$(printf "100/%s*%s\n" "$_design" "$_current" | bc -l)"
-    printf "%0.2f\n" "$_health_percentage"
-  fi
+  case "$_subcommand" in
+    "status")
+      if [[ -n "$_long_status" ]]; then
+        ioreg -l -w 0 -n AppleSmartBattery -r
+      else
+        pmset -g batt
+      fi
+      ;;
+    "cycles")
+      _ioreg_property AppleSmartBattery CycleCount
+      ;;
+    "health")
+      local _design
+      local _current
+      _design="$(_ioreg_property AppleSmartBattery DesignCapacity)"
+      _current="$(_ioreg_property AppleSmartBattery CurrentCapacity)"
+      _health_percentage="$(printf "100/%s*%s\n" "$_design" "$_current" | bc -l)"
+      printf "%0.2f\n" "$_health_percentage"
+      ;;
+  esac
 }
 
 # ------------------------------------------------------------------------- DNS
@@ -930,13 +934,16 @@ EOM
 launch_services() {
   _cmd_path="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
   _action="$1"
-  if [[ "$_action" == "cleanup" ]]; then
-    "$_cmd_path" -kill -r -domain local -domain system -domain user && \
-      killall Finder
-  else
-    _print_desc "locate"
-  fi
 
+  case "$_action" in
+    "cleanup")
+      "$_cmd_path" -kill -r -domain local -domain system -domain user && \
+        killall Finder
+      ;;
+    *)
+      _print_desc "launch_services"
+      ;;
+  esac
 }
 
 # ---------------------------------------------------------------------- Locate
@@ -952,11 +959,14 @@ Description:
 EOM
 locate() {
   _action="$1"
-  if [[ "$_action" == "updatedb" ]]; then
-    sudo /usr/libexec/locate.updatedb
-  else
-    _print_desc "locate"
-  fi
+  case "$_action" in
+    "updatedb")
+      sudo /usr/libexec/locate.updatedb
+      ;;
+    *)
+      _print_desc "locate"
+      ;;
+  esac
 }
 
 # ----------------------------------------------------------------- Preferences
@@ -1089,21 +1099,26 @@ trash() {
         ;;
     esac
   done
-  if [[ "$_subcommand" = "open" ]];then
-    open "$HOME/.Trash"
-  elif [[ "$_subcommand" = "empty" ]]; then
-    local _trash_command="rm -rfv"
-    if [[ -n "$_secure" ]]; then
-      _trash_command="srm -rfvm"
-    fi
 
-    sudo "$_trash_command" ~/.Trash/
-    if [[ -n "$_all" ]]; then
-      sudo "$_trash_command" /Volumes/*/.Trashes
-    fi
-  else
-    _print_desc "trash"
-  fi
+  case "$_subcommand" in
+    "open")
+      open "$HOME/.Trash"
+      ;;
+    "empty")
+      local _trash_command="rm -rfv"
+      if [[ -n "$_secure" ]]; then
+        _trash_command="srm -rfvm"
+      fi
+
+      sudo "$_trash_command" ~/.Trash/
+      if [[ -n "$_all" ]]; then
+        sudo "$_trash_command" /Volumes/*/.Trashes
+      fi
+      ;;
+    *)
+      _print_desc "trash"
+      ;;
+  esac
 }
 
 # --------------------------------------------------------------------- Updates
