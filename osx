@@ -482,36 +482,6 @@ commands() {
 #
 ###############################################################################
 
-# Example Section #############################################################
-
-# --------------------------------------------------------------------- example
-
-desc example <<EOM
-Usage:
-  $_me example [<name>] [--casual]
-
-Print "Hello, World!"
-EOM
-example() {
-  if ( _command_options_include "--casual" ); then
-    greeting="Hi"
-  else
-    greeting="Hello"
-  fi
-  name=$(_get_command_argument 1)
-
-  _debug printf "example() \$greeting: %s\n" "$greeting"
-  _debug printf "example() \$name: %s\n" "$name"
-
-  if [[ "$name" == "Bill" ]]; then
-    printf "%s, William!\n" "$greeting"
-  elif [[ -n "$name" ]]; then
-    printf "%s, %s!\n" "$greeting" "$name"
-  else
-    printf "%s, World!\n" "$greeting"
-  fi
-}
-
 # --------------------------------------------------------------------- Airport
 
 desc apinfo <<EOM
