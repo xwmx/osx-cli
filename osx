@@ -708,19 +708,63 @@ volume() {
 desc battery <<EOM
 Usage:
   $_ME battery [-l|--long]
+  $_ME battery status [-l|--long]
+  $_ME battery cycles
+
+Subcommands:
+  status  Current battery status.
+  cycles  Number of battery cycles.
 
 Options:
   -l --long  Print longform information about the battery status.
 
 Description:
-  Print the current battery status.
+  Print battery info. When no subcommand is specified, display \`status\`.
 EOM
+# _ioreg_property()
+#
+# Usage:
+#   _ioreg_property <object name> <property key>
+#
+# Description:
+#   Print individual Darwin / OS X I/O Kit Registry property keys via the
+#   `ioreg` tool and `xmllint`.
+#
+# Example:
+#   _ioreg_property AppleSmartBattery CycleCount
+_ioreg_property() {
+  local _name="${1:-}"
+  if [[ -z "$_name" ]]; then
+    printf "_ioreg_property(): No object name specified.\n"
+    exit 1
+  fi
+  local _key="${2:-}"
+  if [[ -z "$_key" ]]; then
+    printf "_ioreg_property(): No property key specified.\n"
+    exit 1
+  fi
+  local _value
+  _value="$(ioreg \
+    -l \
+    -w 0 \
+    -n "$_name" \
+    -r \
+    -f \
+    -a | xmllint \
+      --xpath "//key[.=\"$_key\"]/following-sibling::*[1]/text()" \
+      -)"
+  printf "%s\n" "$_value"
+}
 battery() {
   local _long_status=
+  local _subcommand="status"
   for arg in "${command_argv[@]:-}"; do
     case $arg in
       -l|--long)
         _long_status=1
+        ;;
+      status|cycles)
+        _subcommand="$arg"
         ;;
       *)
         arguments+=($arg)
@@ -728,10 +772,14 @@ battery() {
     esac
   done
 
-  if [[ -n "$_long_status" ]]; then
-    ioreg -l -w 0 -n AppleSmartBattery -r
-  else
-    pmset -g batt
+  if [[ "$_subcommand" = "status" ]]; then
+    if [[ -n "$_long_status" ]]; then
+      ioreg -l -w 0 -n AppleSmartBattery -r
+    else
+      pmset -g batt
+    fi
+  elif [[ "$_subcommand" = "cycles" ]]; then
+    _ioreg_property AppleSmartBattery CycleCount
   fi
 }
 
