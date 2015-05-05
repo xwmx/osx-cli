@@ -574,6 +574,18 @@ volume() {
 
 }
 
+# --------------------------------------------------------------------- battery
+
+desc battery <<EOM
+Usage:
+  $_me battery
+
+Print the current battery status.
+EOM
+battery() {
+  pmset -g batt
+}
+
 # ------------------------------------------------------------------------- DNS
 
 desc flushdns <<EOM
