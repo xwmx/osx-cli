@@ -827,6 +827,15 @@ spotlight() {
   esac
 }
 
+desc sl <<EOM
+Description:
+  Spotlight searching and controls. This is an alias for the \`spotlight\`
+  function. See \`help spotlight\` for usage information.
+EOM
+sl() {
+  $_me spotlight "$@"
+}
+
 # ----------------------------------------------------------------------- Trash
 
 desc emptytrash <<EOM
