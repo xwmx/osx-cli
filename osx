@@ -710,10 +710,13 @@ Usage:
   $_ME battery [-l|--long]
   $_ME battery status [-l|--long]
   $_ME battery cycles
+  $_ME battery health
 
 Subcommands:
   status  Current battery status.
   cycles  Number of battery cycles.
+  health  Health of the battery, using the current capacity as perctage of
+          the battery's design capacity).
 
 Options:
   -l --long  Print longform information about the battery status.
@@ -763,7 +766,7 @@ battery() {
       -l|--long)
         _long_status=1
         ;;
-      status|cycles)
+      status|cycles|health)
         _subcommand="$arg"
         ;;
       *)
@@ -780,6 +783,13 @@ battery() {
     fi
   elif [[ "$_subcommand" = "cycles" ]]; then
     _ioreg_property AppleSmartBattery CycleCount
+  elif [[ "$_subcommand" = "health" ]]; then
+    local _design
+    local _current
+    _design="$(_ioreg_property AppleSmartBattery DesignCapacity)"
+    _current="$(_ioreg_property AppleSmartBattery CurrentCapacity)"
+    _health_percentage="$(printf "100/%s*%s\n" "$_design" "$_current" | bc -l)"
+    printf "%0.2f\n" "$_health_percentage"
   fi
 }
 
