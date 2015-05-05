@@ -488,7 +488,8 @@ desc apinfo <<EOM
 Usage:
   $_me apinfo
 
-Show the current airport status.
+Description:
+  Show the current airport status.
 EOM
 apinfo() {
   /System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport --getinfo
@@ -553,7 +554,8 @@ Usage:
 Options:
   -l --long  Print longform information about the battery status.
 
-Print the current battery status.
+Description:
+  Print the current battery status.
 EOM
 battery() {
   local _long_status=
@@ -581,7 +583,8 @@ desc flushdns <<EOM
 Usage:
   $_me flushdns
 
-Flush Directory Service cache
+Description:
+  Flush Directory Service cache.
 EOM
 flushdns() {
   # pre-yosemite
@@ -596,7 +599,8 @@ desc clean_ds_store <<EOM
 Usage:
   $_me clean_ds_store
 
-Recursively delete \`.DS_Store\` files
+Description:
+  Recursively delete \`.DS_Store\` files
 EOM
 clean_ds_store() {
   find . -type f -name '*.DS_Store' -ls -delete
@@ -606,7 +610,8 @@ desc desktop <<EOM
 Usage:
   $_me desktop ( hide | show )
 
-Hide/show all desktop icons (useful when presenting)
+Description:
+  Hide/show all desktop icons (useful when presenting).
 EOM
 desktop() {
   _arg=$(_get_command_argument 1)
@@ -629,7 +634,8 @@ desc finder <<EOM
 Usage:
   $_me finder hidden ( hide | show )
 
-Hide/show hidden files in the Finder.
+Description:
+  Hide/show hidden files in the Finder.
 EOM
 finder() {
   _target=$(_get_command_argument 1)
@@ -659,7 +665,8 @@ desc eject <<EOM
 Usage:
   $_me eject volname
 
-Ejects a given volume (eg, a disk image).
+Description:
+  Ejects a given volume (eg, a disk image).
 EOM
 eject() {
   hdiutil eject "/Volumes/$*"
@@ -671,10 +678,11 @@ desc jsc <<EOM
 Usage:
   $_me jsc [filename.js]
 
-Run the JavaScriptCore.framework jsc REPL.
+Description:
+  Run the JavaScriptCore.framework jsc REPL.
 
-If no argument is provided, launch an interactive REPL session. If a filename \
-is provided as the second argument, run that file with jsc.
+  If no argument is provided, launch an interactive REPL session. If a
+  filename is provided as the second argument, run that file with jsc.
 EOM
 jsc() {
   _jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
@@ -697,7 +705,8 @@ desc launch_services <<EOM
 Usage:
   $_me launch_services cleanup
 
-Clean up LaunchServices to remove duplicates in the “Open With” menu
+Description:
+  Clean up LaunchServices to remove duplicates in the "Open With" menu.
 EOM
 launch_services() {
   _cmd_path="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
@@ -717,9 +726,10 @@ desc locate <<EOM
 Usage:
   $_me locate updatedb
 
-Update the locate database.
+Description:
+  Update the locate database.
 
-NOTE: prefer using \`spotlight\` commands rather than \`locate\`.
+  NOTE: prefer using \`spotlight\` commands rather than \`locate\`.
 EOM
 locate() {
   _action=$(_get_command_argument 1)
@@ -736,7 +746,8 @@ desc plistbuddy <<EOM
 Usage:
   $_me plistbuddy <PlistBuddy arguments> [<PlistBuddy options>]
 
-PlistBuddy alias, because sometimes \`defaults\` just doesn’t cut it
+Description:
+  PlistBuddy alias, because sometimes \`defaults\` just doesn’t cut it.
 EOM
 plistbuddy() {
   /usr/libexec/PlistBuddy "$@"
@@ -748,7 +759,8 @@ desc ql <<EOM
 Usage:
   $_me ql <item>
 
-Open items with Quick Look.
+Description:
+  Open items with Quick Look.
 EOM
 ql() {
   qlmanage -p "$*" > /dev/null 2>&1
@@ -760,7 +772,8 @@ desc afk <<EOM
 Usage:
   $_me afk
 
-Lock the screen (when going AFK)
+Description:
+  Lock the screen (when going AFK)
 EOM
 afk() {
   "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
@@ -772,7 +785,8 @@ desc sleep <<EOM
 Usage:
   $_me sleep
 
-Put the system to sleep immediately.
+Description:
+  Put the system to sleep immediately.
 EOM
 sleep() {
   pmset sleepnow
@@ -788,7 +802,8 @@ Usage:
   spotlight disable
   spotlight enable
 
-Spotlight searching and controls.
+Description:
+  Spotlight searching and controls.
 EOM
 spotlight() {
   case "$1" in
@@ -818,7 +833,8 @@ desc emptytrash <<EOM
 Usage:
   $_me emptytrash
 
-Empty the Trash on all mounted volumes and the main HDD.
+Description:
+  Empty the Trash on all mounted volumes and the main HDD.
 EOM
 emptytrash() {
   sudo rm -rfv /Volumes/*/.Trashes
@@ -831,7 +847,8 @@ desc update_apps <<EOM
 Usage:
   $_me update_apps
 
-Get and install updates from the App Store.
+Description:
+  Get and install updates from the App Store.
 EOM
 update_apps() {
   softwareupdate -i -a
