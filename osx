@@ -578,12 +578,31 @@ volume() {
 
 desc battery <<EOM
 Usage:
-  $_me battery
+  $_me battery [-l|--long]
+
+Options:
+  -l --long  Print longform information about the battery status.
 
 Print the current battery status.
 EOM
 battery() {
-  pmset -g batt
+  local _long_status=
+  for arg in "${command_options[@]:-}"; do
+    case $arg in
+      -l|--long)
+        _long_status=1
+        ;;
+      *)
+        arguments+=($arg)
+        ;;
+    esac
+  done
+
+  if [[ -n "$_long_status" ]]; then
+    ioreg -l -n AppleSmartBattery -r
+  else
+    pmset -g batt
+  fi
 }
 
 # ------------------------------------------------------------------------- DNS
