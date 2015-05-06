@@ -722,8 +722,8 @@ Usage:
 Subcommands:
   status  Current battery status.
   cycles  Number of battery cycles.
-  health  Health of the battery, using the current capacity as perctage of
-          the battery's design capacity).
+  health  Health of the battery, using the current maximum capacity as perctage
+          of the battery's design capacity).
 
 Options:
   -l --long  Print longform information about the battery status.
@@ -794,10 +794,10 @@ battery() {
       ;;
     "health")
       local _design
-      local _current
+      local _max
       _design="$(_ioreg_property AppleSmartBattery DesignCapacity)"
-      _current="$(_ioreg_property AppleSmartBattery CurrentCapacity)"
-      _health_percentage="$(printf "100/%s*%s\n" "$_design" "$_current" | bc -l)"
+      _max="$(_ioreg_property AppleSmartBattery MaxCapacity)"
+      _health_percentage="$(printf "100/%s*%s\n" "$_design" "$_max" | bc -l)"
       printf "%0.2f\n" "$_health_percentage"
       ;;
   esac
