@@ -754,8 +754,7 @@ _ioreg_property() {
     -r \
     -f \
     -a | xmllint \
-      --xpath "//key[.=\"$_key\"]/following-sibling::*[1]/text()" \
-      -)"
+      --xpath "//key[.=\"$_key\"]/following-sibling::*[1]/text()" -)"
   printf "%s\n" "$_value"
 }
 battery() {
