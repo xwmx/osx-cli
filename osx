@@ -701,6 +701,14 @@ volume() {
       ;;
   esac
 }
+desc vol <<EOM
+Description:
+  Volume controls. This is an alias for the \`volume\`
+  command. See \`help volume\` for usage information.
+EOM
+vol() {
+  $_ME volume "$@"
+}
 
 # --------------------------------------------------------------------- battery
 
