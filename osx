@@ -738,7 +738,7 @@ EOM
 #
 # Description:
 #   Print individual Darwin / OS X I/O Kit Registry property keys via the
-#   `ioreg` tool and `xmllint`.
+#   `ioreg` tool.
 #
 # Example:
 #   _ioreg_property AppleSmartBattery CycleCount
@@ -756,12 +756,8 @@ _ioreg_property() {
   local _value
   _value="$(ioreg \
     -l \
-    -w 0 \
     -n "$_name" \
-    -r \
-    -f \
-    -a | xmllint \
-      --xpath "//key[.=\"$_key\"]/following-sibling::*[1]/text()" -)"
+    -r | awk -v pattern="\"${_key}\"" '$1 == pattern {print $3}')"
   printf "%s\n" "$_value"
 }
 battery() {
