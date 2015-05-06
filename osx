@@ -793,12 +793,8 @@ battery() {
       _ioreg_property AppleSmartBattery CycleCount
       ;;
     "health")
-      local _design
-      local _max
-      _design="$(_ioreg_property AppleSmartBattery DesignCapacity)"
-      _max="$(_ioreg_property AppleSmartBattery MaxCapacity)"
-      _health_percentage="$(printf "100/%s*%s\n" "$_design" "$_max" | bc -l)"
-      printf "%0.2f\n" "$_health_percentage"
+      ioreg -l -n AppleSmartBattery -r | \
+        awk '/MaxCapacity/{mc=$3};/DesignCapacity/{dc=$3};END{print 100*mc/dc}'
       ;;
   esac
 }
