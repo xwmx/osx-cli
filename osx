@@ -1135,6 +1135,54 @@ update_apps() {
   softwareupdate -i -a
 }
 
+# ---------------------------------------------------------------- WindowServer
+
+desc windowserver <<EOM
+Usage:
+  $_ME windowserver kill
+
+Description:
+  Kill WindowServer. Warning: this will quit all running applications and log
+  out of the current user account.
+
+  Killing WindowServer and be used to reset the UI of OS X, esspecially if it
+  slows down over a period of use as the process becomes bloated.
+EOM
+windowserver() {
+  if [[ "$1" == "kill" ]]
+  then
+    local _kill_windowserver
+    while true
+    do
+      read -p "Are you sure you want to close all apps and log out? [y/n] " yn
+      case $yn in
+        [Yy]* )
+          _kill_windowserver=1
+          break
+          ;;
+        [Nn]* )
+          _kill_windowserver=0
+          break
+          ;;
+        * )
+          printf "Please answer yes or no.\n"
+          ;;
+      esac
+    done
+    if ((_kill_windowserver))
+    then
+      printf "Logging out...\n"
+      # via: http://hints.macworld.com/article.php?story=20071121154033749
+      sudo killall -HUP WindowServer
+    else
+      printf "Exiting...\n"
+      exit
+    fi
+  else
+    _print_desc "windowserver"
+  fi
+}
+
 ###############################################################################
 # Platform Check
 ###############################################################################
