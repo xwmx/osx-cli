@@ -1124,53 +1124,27 @@ trash() {
 
 # --------------------------------------------------------------------- Updates
 
-desc swupdate <<EOM
+desc softwareupdate <<EOM
 Usage:
-  $_ME swupdate list
-  $_ME swupdate install ( <item> | all )
+  $_ME softwareupdate ( -l | --list )
+  $_ME softwareupdate ( -i | --install ( <item> | ( -a | --all ) ) )
 
-Commands:
-  list    List available updates
-  install Install either the given update, or all of the available updates.
+Options:
+  -l --list    List available updates
+  -i --install Install the given update or all of the available updates.
+    -a --all   When used with -i or --install, install all available updates.
 
 Description:
   Get and install updates available through Apple's software update catalog,
   or whichever .sucatalog is set in preferences for catalogs provided by OS X
   Server's Software Update service.
 
-  Proves an alternative interface to the \`softwareupdate\` utility.
+  This is just a redundant wrapper around the \`softwareupdate\` utility
+  included as a bookmark. See \`man softwareupdate\` for more options.
 EOM
-swupdate() {
-  local _subcommand=
-  local _target=
-  for arg in "${command_argv[@]:-}"; do
-    case "$arg" in
-      list|all)
-        _subcommand="$arg"
-        shift
-        _target="$arg"
-        ;;
-      *)
-        :
-        ;;
-    esac
-  done
-
-  if [[ -z "$_subcommand" ]]; then
-    _print_desc "swupdate"
-  else
-    if [[ "$_subcommand" == "list" ]]; then
-      softwareupdate --list
-    else
-      if [[ "$_target" == "all" ]]; then
-        softwareupdate --install --all
-      elif [[ -n "$_target" ]]; then
-        softwareupdate --install "$_target"
-      else
-        _die printf "No argument provided.\n"
-      fi
-    fi
-  fi
+_SOFTWAREUPDATE_COMMAND="$(which softwareupdate)"
+softwareupdate() {
+  "$_SOFTWAREUPDATE_COMMAND" "${@:-}"
 }
 
 # ---------------------------------------------------------------- WindowServer
