@@ -834,6 +834,32 @@ battery() {
   esac
 }
 
+# --------------------------------------------------------------------- desktop
+
+desc desktop <<EOM
+Usage:
+  $_ME desktop ( hide | show )
+
+Description:
+  Hide/show all desktop icons (useful when presenting).
+EOM
+desktop() {
+  local _action="$1"
+  case "$_action" in
+    hide)
+      defaults write com.apple.finder CreateDesktop -bool false && \
+        killall Finder
+      ;;
+    show)
+      defaults write com.apple.finder CreateDesktop -bool true && \
+        killall Finder
+      ;;
+    *)
+      _print_desc "desktop"
+      ;;
+  esac
+}
+
 # ------------------------------------------------------------------------- DNS
 
 desc flushdns <<EOM
@@ -861,30 +887,6 @@ Description:
 EOM
 clean_ds_store() {
   find . -type f -name '*.DS_Store' -ls -delete
-}
-
-desc desktop <<EOM
-Usage:
-  $_ME desktop ( hide | show )
-
-Description:
-  Hide/show all desktop icons (useful when presenting).
-EOM
-desktop() {
-  local _action="$1"
-  case "$_action" in
-    hide)
-      defaults write com.apple.finder CreateDesktop -bool false && \
-        killall Finder
-      ;;
-    show)
-      defaults write com.apple.finder CreateDesktop -bool true && \
-        killall Finder
-      ;;
-    *)
-      _print_desc "desktop"
-      ;;
-  esac
 }
 
 desc finder <<EOM
