@@ -871,8 +871,8 @@ Description:
   Hide/show all desktop icons (useful when presenting).
 EOM
 desktop() {
-  _arg=$(_get_command_argument 1)
-  case "$_arg" in
+  local _action="$1"
+  case "$_action" in
     hide)
       defaults write com.apple.finder CreateDesktop -bool false && \
         killall Finder
