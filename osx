@@ -1087,7 +1087,7 @@ sshd() {
     local _results="$(sudo launchctl list | grep com.openssh.sshd)"
     [[ -n "$_results" ]] && printf "sshd running\n" || printf "sshd stopped\n"
   else
-    _die printf "Command not recognized.\n%s" "$(_print_desc "sshd")"
+    _die printf "Command not recognized.\n%s\n" "$(_print_desc "sshd")"
   fi
 }
 
