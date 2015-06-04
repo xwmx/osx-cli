@@ -1172,6 +1172,46 @@ softwareupdate() {
   "$_SOFTWAREUPDATE_COMMAND" "${@:-}"
 }
 
+# ------------------------------------------------------------------------- vnc
+
+desc vnc <<EOM
+Usage:
+  $_ME vnc ( start | stop | status )
+
+Description:
+  Start, stop, or get the status of vnc aka Screen Sharing aka Remote Desktop.
+EOM
+vnc() {
+  local _action="$1"
+  # Start and stop commands via: http://apple.stackexchange.com/q/30238
+  if [[ "$_action" == "start" ]]; then
+    sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+      -activate \
+      -configure \
+      -access \
+      -on \
+      -configure \
+      -allowAccessFor \
+      -allUsers \
+      -configure \
+      -restart \
+      -agent \
+      -privs \
+      -all
+  elif [[ "$_action" == "stop" ]]; then
+    sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+      -deactivate \
+      -configure \
+      -access \
+      -off
+  elif [[ "$_action" == "status" ]]; then
+    local _results="$(pgrep ARDAgent)"
+    [[ -n "$_results" ]] && printf "vnc running\n" || printf "vnc stopped\n"
+  else
+    _die printf "Command not recognized.\n%s\n" "$(_print_desc "vnc")"
+  fi
+}
+
 # ---------------------------------------------------------------- WindowServer
 
 desc windowserver <<EOM
