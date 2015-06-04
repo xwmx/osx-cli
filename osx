@@ -1066,6 +1066,31 @@ sl() {
   $_ME spotlight "$@"
 }
 
+# ------------------------------------------------------------------------ sshd
+
+desc sshd <<EOM
+Usage:
+  $_ME sshd ( start | stop | status )
+
+Description:
+  Start, stop, or get the status of sshd for remote login.
+EOM
+sshd() {
+  local _action="$1"
+  if [[ "$_action" == "start" ]]; then
+    sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+    sshd status
+  elif [[ "$_action" == "stop" ]]; then
+    sudo launchctl unload -w /System/Library/LaunchDaemons/ssh.plist
+    sshd status
+  elif [[ "$_action" == "status" ]]; then
+    local _results="$(sudo launchctl list | grep com.openssh.sshd)"
+    [[ -n "$_results" ]] && printf "sshd running\n" || printf "sshd stopped\n"
+  else
+    _die printf "Command not recognized.\n%s" "$(_print_desc "sshd")"
+  fi
+}
+
 # ----------------------------------------------------------------------- Trash
 
 desc trash <<EOM
