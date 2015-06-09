@@ -876,6 +876,34 @@ flushdns() {
   sudo discoveryutil mdnsflushcache && sudo discoveryutil udnsflushcaches
 }
 
+# ------------------------------------------------------------------------ fans
+
+desc fans <<EOM
+Usage:
+  $_ME fans
+
+Description:
+  Display fan stats via the iStats Ruby gem.
+
+  More information:
+    https://github.com/Chris911/iStats
+EOM
+fans() {
+  if _command_exists "istats"; then
+    istats fan
+  else
+    _die printf "\
+iStats not installed.
+
+Install via Rubygems with:
+  gem install iStats
+
+More information:
+  https://github.com/Chris911/iStats
+"
+  fi
+}
+
 # ---------------------------------------------------------------------- Finder
 
 desc clean_ds_store <<EOM
@@ -1155,6 +1183,50 @@ More information:
   https://github.com/Chris911/iStats
 "
   fi
+}
+
+# ------------------------------------------------------------------------ temp
+
+desc temp <<EOM
+Usage:
+  $_ME temp
+
+Description:
+  Display CPU and battery temperature via the iStats Ruby gem.
+
+  More information:
+    https://github.com/Chris911/iStats
+EOM
+temp() {
+  if _command_exists "istats"; then
+    istats cpu
+    istats battery temp
+  else
+    _die printf "\
+iStats not installed.
+
+Install via Rubygems with:
+  gem install iStats
+
+More information:
+  https://github.com/Chris911/iStats
+"
+  fi
+}
+desc temperature <<EOM
+Usage:
+  $_ME temperature
+
+Description:
+  Alias for \`temp\`.
+
+  Display CPU temperature via the iStats Ruby gem.
+
+  More information:
+    https://github.com/Chris911/iStats
+EOM
+temperature() {
+  $_ME temp
 }
 
 # ----------------------------------------------------------------------- Trash
