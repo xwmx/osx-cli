@@ -1129,6 +1129,34 @@ sshd() {
   fi
 }
 
+# ----------------------------------------------------------------------- stats
+
+desc stats <<EOM
+Usage:
+  $_ME stats
+
+Description:
+  Display temperature, fan, and battery status via the iStats Ruby gem.
+
+  More information:
+    https://github.com/Chris911/iStats
+EOM
+stats() {
+  if _command_exists "istats"; then
+    istats
+  else
+    _die printf "\
+iStats not installed.
+
+Install via Rubygems with:
+  gem install iStats
+
+More information:
+  https://github.com/Chris911/iStats
+"
+  fi
+}
+
 # ----------------------------------------------------------------------- Trash
 
 desc trash <<EOM
