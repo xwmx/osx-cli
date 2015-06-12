@@ -1049,6 +1049,92 @@ plistbuddy() {
   /usr/libexec/PlistBuddy "$@"
 }
 
+# --------------------------------------------------------------------- process
+
+desc process <<EOM
+Usage:
+  $_ME process pause ( <pid> | -n --name <name> )
+  $_ME process continue ( <pid> | -n --name <name> )
+  $_ME process throttle <pid> <max usage>
+  $_ME process kill ( <pid> | -n --name <name> )
+
+Description:
+  Pause, continue, throttle, or kill a given process.
+
+Dependency:
+  cputhrottle
+    http://www.willnolan.com/cputhrottle/cputhrottle.html
+EOM
+process() {
+  local _name=
+  local _pid=
+  local _subcommand="status"
+  local _arguments=()
+  local _throttle_percent=
+  for arg in "${_COMMAND_ARGV[@]:-}"
+  do
+    case $arg in
+      -n|--name)
+        shift
+        _name="$arg"
+        ;;
+      pause|continue|throttle|kill)
+        _subcommand="$arg"
+        ;;
+      *)
+        _arguments+=($arg)
+        ;;
+    esac
+  done
+
+  if [[ -z "$_name" ]]
+  then
+    _pid="${_arguments[1]:-}"
+    _debug printf "process() \$_pid: %s\n" "$_pid"
+  else
+    _die printf "Process id missing.\n"
+  fi
+
+  case "$_subcommand" in
+    "pause")
+      if [[ -n "$_name" ]]
+      then
+        killall -STOP -c "$_name"
+      else
+        kill -STOP "$_pid"
+      fi
+      ;;
+    "continue")
+      if [[ -n "$_name" ]]
+      then
+        killall -CONT -c "$_name"
+      else
+        kill -CONT "$_pid"
+      fi
+      ;;
+    "throttle")
+      if ! _command_exists "cputhrottle"
+      then
+        _die printf "\
+cputhrottle not installed.
+
+Get it from here:
+  http://www.willnolan.com/cputhrottle/cputhrottle.html
+"
+      fi
+      cputhrottle "$_pid" "${_arguments[2]:-}"
+      ;;
+    "kill")
+      if [[ -n "$_name" ]]
+      then
+        killall -c "$_name"
+      else
+        kill "$_pid"
+      fi
+      ;;
+  esac
+}
+
 # ------------------------------------------------------------------ Quick Look
 
 desc ql <<EOM
