@@ -1258,6 +1258,31 @@ sleep() {
   pmset sleepnow
 }
 
+# -------------------------------------------------------------- softwareupdate
+
+desc softwareupdate <<EOM
+Usage:
+  $_ME softwareupdate ( -l | --list )
+  $_ME softwareupdate ( -i | --install ( <item> | ( -a | --all ) ) )
+
+Options:
+  -l --list    List available updates
+  -i --install Install the given update or all of the available updates.
+    -a --all   When used with -i or --install, install all available updates.
+
+Description:
+  Get and install updates available through Apple's software update catalog,
+  or whichever .sucatalog is set in preferences for catalogs provided by OS X
+  Server's Software Update service.
+
+  This is just a redundant wrapper around the \`softwareupdate\` utility
+  included as a bookmark. See \`man softwareupdate\` for more options.
+EOM
+_SOFTWAREUPDATE_COMMAND="$(which softwareupdate)"
+softwareupdate() {
+  "$_SOFTWAREUPDATE_COMMAND" "${@:-}"
+}
+
 # ------------------------------------------------------------------- Spotlight
 
 desc spotlight <<EOM
@@ -1532,31 +1557,6 @@ trash() {
       _print_desc "trash"
       ;;
   esac
-}
-
-# --------------------------------------------------------------------- Updates
-
-desc softwareupdate <<EOM
-Usage:
-  $_ME softwareupdate ( -l | --list )
-  $_ME softwareupdate ( -i | --install ( <item> | ( -a | --all ) ) )
-
-Options:
-  -l --list    List available updates
-  -i --install Install the given update or all of the available updates.
-    -a --all   When used with -i or --install, install all available updates.
-
-Description:
-  Get and install updates available through Apple's software update catalog,
-  or whichever .sucatalog is set in preferences for catalogs provided by OS X
-  Server's Software Update service.
-
-  This is just a redundant wrapper around the \`softwareupdate\` utility
-  included as a bookmark. See \`man softwareupdate\` for more options.
-EOM
-_SOFTWAREUPDATE_COMMAND="$(which softwareupdate)"
-softwareupdate() {
-  "$_SOFTWAREUPDATE_COMMAND" "${@:-}"
 }
 
 # ------------------------------------------------------------------------- vnc
