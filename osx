@@ -682,6 +682,7 @@ Subcommands:
 EOM
 _AIRPORT_CMD="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport"
 airport() {
+  local _networksetup_cmd="$(which networksetup)"
   local _subcommand="info"
   for arg in "${_COMMAND_ARGV[@]:-}"; do
     case $arg in
@@ -696,10 +697,10 @@ airport() {
 
   case "$_subcommand" in
     "on")
-      networksetup -setairportpower airport on
+      "$_networksetup_cmd" -setairportpower airport on
       ;;
     "off")
-      networksetup -setairportpower airport off
+      "$_networksetup_cmd" -setairportpower airport off
       ;;
     "info")
       "$_AIRPORT_CMD" --getinfo
@@ -1112,6 +1113,24 @@ Description:
 EOM
 lock() {
   "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
+}
+
+# ---------------------------------------------------------------- networksetup
+
+desc networksetup <<EOM
+Usage:
+  $_ME networksetup <arguments>
+
+Description:
+  Configuration tool for network settings in System Preferences.
+
+  This is simply a bookmark for the networksetup utility.
+
+  See \`man networksetup\` for more information.
+EOM
+_NETWORKSETUP_CMD="$(which networksetup)"
+networksetup() {
+  "$_NETWORKSETUP_CMD" "$*"
 }
 
 # ----------------------------------------------------------------- Preferences
