@@ -705,15 +705,13 @@ airport() {
       "$_networksetup_cmd" -setairportpower airport off
       ;;
     "join")
-      local _active_interface="$(
-      ifconfig | \
-        pcregrep \
-          -M \
-          -o '^[^\t:]+:([^\n]|\n\t)*status: active' | \
-      egrep \
-        -o \
-        -m 1 \
-        '^[^\t:]+'
+      # Command references:
+      # - http://apple.stackexchange.com/a/90516
+      # - https://jamfnation.jamfsoftware.com/discussion.html?id=4849
+      local _wifi_interface="$(
+        "$_networksetup_cmd" \
+          -listallhardwareports | \
+          /usr/bin/awk '/Wi-Fi|AirPort/ {getline; print $NF}'
       )"
 
       local _ssid="${_arguments[1]:-}"
@@ -722,12 +720,12 @@ airport() {
       # Request password without displaying it
       read -s -p "Password: " _password
 
-      _debug printf "airport() \$_active_interface: %s\n" "$_active_interface"
+      _debug printf "airport() \$_wifi_interface: %s\n" "$_wifi_interface"
       _debug printf "airport() \$_ssid: %s\n" "${_ssid}"
 
       "$_networksetup_cmd" \
         -setairportnetwork \
-        "$_active_interface" \
+        "$_wifi_interface" \
         "$_ssid" \
         "$_password"
       ;;
