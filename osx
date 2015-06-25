@@ -718,7 +718,9 @@ airport() {
       local _password=
 
       # Request password without displaying it
-      read -s -p "Password: " _password
+      printf "Password: "
+      read -s _password
+      printf "\n" # print newline to stop `read`.
 
       _debug printf "airport() \$_wifi_interface: %s\n" "$_wifi_interface"
       _debug printf "airport() \$_ssid: %s\n" "${_ssid}"
