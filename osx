@@ -1392,6 +1392,15 @@ Description:
   This is simply a bookmark for the system's systemsetup utility.
 
   See \`man systemsetup\` for more information.
+
+Examples:
+  systemsetup -setdate 04:15:02
+
+  systemsetup -settime 16:20:00
+
+  systemsetup -settimezone US/Pacific
+
+  systemsetup -setnetworktimeserver time.apple.com
 EOM
 _SYSTEMSETUP_CMD="$(which systemsetup)"
 systemsetup() {
