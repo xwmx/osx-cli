@@ -1127,6 +1127,40 @@ Description:
   This is simply a bookmark for the networksetup utility.
 
   See \`man networksetup\` for more information.
+
+Examples:
+   networksetup -listallnetworkservices
+
+   networksetup -setmanual "Built-in Ethernet" 192.168.100.100 255.255.255.0
+   192.168.100.1
+
+   networksetup -setdnsservers "Built-in Ethernet" 192.168.100.100
+   192.168.100.12
+
+   networksetup -setsearchdomains "Built-in Ethernet" company.com corp.com
+
+   networksetup -setwebproxy "Built-in Ethernet" proxy.company.com 80
+
+   networksetup -setwebproxy "Built-In Ethernet" proxy.company.com 80 On
+   authusername authpassword
+
+   networksetup -duplicatenetworkservice "Built-In Ethernet" "Local LAN"
+
+   networksetup -getdnsservers "Built-In Ethernet"
+
+   networksetup -setMTU en0 1500
+
+   networksetup -setMedia en0 autoselect
+
+   networksetup -setMedia en0 100baseTX half-duplex
+
+   networksetup -createBond MyBond en0 en1
+
+   networksetup -addDeviceToBond en0 bond0
+
+   networksetup -setpppoepassword MyPPPoE - < ~/Desktop/MyPasswordFile.txt
+
+   networksetup -createlocation Home populate
 EOM
 _NETWORKSETUP_CMD="$(which networksetup)"
 networksetup() {
