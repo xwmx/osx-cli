@@ -1355,6 +1355,24 @@ More information:
   fi
 }
 
+# ----------------------------------------------------------------- systemsetup
+
+desc systemsetup <<EOM
+Usage:
+  $_ME systemsetup <arguments>
+
+Description:
+  Configuration tool for certain machine settings in System Preferences.
+
+  This is simply a bookmark for the system's systemsetup utility.
+
+  See \`man systemsetup\` for more information.
+EOM
+_SYSTEMSETUP_CMD="$(which systemsetup)"
+systemsetup() {
+  "$_SYSTEMSETUP_CMD" "$*"
+}
+
 # ------------------------------------------------------------------------ temp
 
 desc temp <<EOM
