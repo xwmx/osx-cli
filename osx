@@ -1399,6 +1399,33 @@ temperature() {
   $_ME temp
 }
 
+
+# -------------------------------------------------------------------- textutil
+
+desc textutil <<EOM
+Usage:
+  $_ME textutil [command_option] [other_options] file...
+
+Description:
+  textutil can be used to manipulate text files of various formats, using the
+  mechanisms provided by the Cocoa text system.
+
+  This is simply a bookmark for the system's textutil utility.
+
+  See \`man textutil\` for more information.
+
+Examples:
+  textutil -convert html MyWordFile -output /tmp/webfile.html
+    Convert a Word document into HTML.
+
+  textutil -info MyWordFile
+    Display information about the file format.
+EOM
+_TEXTUTIL_CMD="$(which textutil)"
+textutil() {
+  "$_TEXTUTIL_CMD" "$*"
+}
+
 # ----------------------------------------------------------------------- Trash
 
 desc trash <<EOM
