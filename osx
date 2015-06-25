@@ -1355,6 +1355,31 @@ More information:
   fi
 }
 
+# ---------------------------------------------------------------------- sysctl
+
+desc sysctl <<EOM
+Usage:
+  $_ME sysctl <arguments>
+
+Description:
+  Configuration tool for certain machine settings in System Preferences.
+
+  This is simply a bookmark for the system's sysctl utility.
+
+  See \`man sysctl\` for more information.
+
+Examples:
+  sysctl -n machdep.cpu.brand_string
+    Print CPU information.
+
+  sysctl vm.loadavg
+    Print load average history.
+EOM
+_SYSCTL_CMD="$(which sysctl)"
+sysctl() {
+  "$_SYSCTL_CMD" "$*"
+}
+
 # ----------------------------------------------------------------- systemsetup
 
 desc systemsetup <<EOM
