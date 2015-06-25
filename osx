@@ -855,6 +855,31 @@ battery() {
   esac
 }
 
+# ------------------------------------------------------------------ caffeinate
+
+desc caffeinate <<EOM
+Usage:
+  $_ME caffeinate [-disu] [-t timeout] [command] [arguments]
+
+Description:
+  Prevent the system from sleeping on behalf of a utility.
+
+  This is simply a bookmark for the caffeinate command.
+
+  See \`man caffeinate\` for more information.
+
+Examples:
+  caffeinate -u -t 3600
+    Prevent sleeping for one hour (3,600 seconds).
+
+  caffeinate -s scp bigfile me:myserver/bigfile
+    Prevent sleeping until the secure file copy (scp) completes.
+EOM
+_CAFFEINATE_CMD="$(which caffeinate)"
+caffeinate() {
+  "$_CAFFEINATE_CMD" "$*"
+}
+
 # --------------------------------------------------------------------- desktop
 
 desc desktop <<EOM
