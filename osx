@@ -672,9 +672,11 @@ commands() {
 
 desc airport <<EOM
 Usage:
-  $_ME airport (info | scan)
+  $_ME airport (on | off | info | scan)
 
 Subcommands:
+  on    Turn wireless on.
+  off   Turn wireless off.
   info  Show the current airport status.
   scan  Perform a scan for wireless networks.
 EOM
@@ -683,7 +685,7 @@ airport() {
   local _subcommand="info"
   for arg in "${_COMMAND_ARGV[@]:-}"; do
     case $arg in
-      info|scan)
+      on|off|info|scan)
         _subcommand="$arg"
         ;;
       *)
@@ -693,6 +695,12 @@ airport() {
   done
 
   case "$_subcommand" in
+    "on")
+      networksetup -setairportpower airport on
+      ;;
+    "off")
+      networksetup -setairportpower airport off
+      ;;
     "info")
       "$_AIRPORT_CMD" --getinfo
       ;;
