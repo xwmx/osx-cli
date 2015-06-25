@@ -672,7 +672,7 @@ commands() {
 
 desc airport <<EOM
 Usage:
-  $_ME airport (on | off | info | scan)
+  $_ME airport (on | off | info | scan | join <SSID> [password])
 
 Subcommands:
   on    Turn wireless on.
@@ -684,13 +684,14 @@ _AIRPORT_CMD="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/
 airport() {
   local _networksetup_cmd="$(which networksetup)"
   local _subcommand="info"
+  local _arguments=()
   for arg in "${_COMMAND_ARGV[@]:-}"; do
     case $arg in
-      on|off|info|scan)
+      on|off|info|scan|join)
         _subcommand="$arg"
         ;;
       *)
-        arguments+=($arg)
+        _arguments+=($arg)
         ;;
     esac
   done
@@ -701,6 +702,31 @@ airport() {
       ;;
     "off")
       "$_networksetup_cmd" -setairportpower airport off
+      ;;
+    "join")
+      local _active_interface="$(
+      ifconfig | \
+        pcregrep \
+          -M \
+          -o '^[^\t:]+:([^\n]|\n\t)*status: active' | \
+      egrep \
+        -o \
+        -m 1 \
+        '^[^\t:]+'
+      )"
+
+      local _ssid="${_arguments[1]:-}"
+      local _password="${_arguments[2]:-}"
+
+      _debug printf "airport() \$_active_interface: %s\n" "$_active_interface"
+      _debug printf "airport() \$_ssid: %s\n" "${_ssid}"
+      _debug printf "airport() \$_password: %s\n" "${_password}"
+
+      "$_networksetup_cmd" \
+        -setairportnetwork \
+        "$_active_interface" \
+        "$_ssid" \
+        "$_password"
       ;;
     "info")
       "$_AIRPORT_CMD" --getinfo
