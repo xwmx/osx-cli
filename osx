@@ -672,7 +672,7 @@ commands() {
 
 desc airport <<EOM
 Usage:
-  $_ME airport (on | off | info | scan | join <SSID> [password])
+  $_ME airport (on | off | info | scan | join <SSID>)
 
 Subcommands:
   on    Turn wireless on.
@@ -716,11 +716,13 @@ airport() {
       )"
 
       local _ssid="${_arguments[1]:-}"
-      local _password="${_arguments[2]:-}"
+      local _password=
+
+      # Request password without displaying it
+      read -s -p "Password: " _password
 
       _debug printf "airport() \$_active_interface: %s\n" "$_active_interface"
       _debug printf "airport() \$_ssid: %s\n" "${_ssid}"
-      _debug printf "airport() \$_password: %s\n" "${_password}"
 
       "$_networksetup_cmd" \
         -setairportnetwork \
