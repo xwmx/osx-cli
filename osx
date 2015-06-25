@@ -681,7 +681,8 @@ Subcommands:
   scan  Perform a scan for wireless networks.
   join  Join the specified network.
 EOM
-_AIRPORT_CMD="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport"
+_AIRPORT_FRAMEWORK_PATH="/System/Library/PrivateFrameworks/Apple80211.framework"
+_AIRPORT_CMD="${_AIRPORT_FRAMEWORK_PATH}/Versions/A/Resources/airport"
 airport() {
   local _networksetup_cmd="$(which networksetup)"
   local _subcommand="info"
