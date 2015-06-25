@@ -735,7 +735,7 @@ airport() {
       "$_AIRPORT_CMD" --getinfo
       ;;
     "scan")
-      "$_AIRPORT_CMD" -s
+      "$_AIRPORT_CMD" --scan
       ;;
   esac
 }
