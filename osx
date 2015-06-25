@@ -679,6 +679,7 @@ Subcommands:
   off   Turn wireless off.
   info  Show the current airport status.
   scan  Perform a scan for wireless networks.
+  join  Join the specified network.
 EOM
 _AIRPORT_CMD="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport"
 airport() {
