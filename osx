@@ -686,6 +686,17 @@ airport() {
   local _networksetup_cmd="$(which networksetup)"
   local _subcommand="info"
   local _arguments=()
+
+  # Command references:
+  # - http://apple.stackexchange.com/a/90516
+  # - https://jamfnation.jamfsoftware.com/discussion.html?id=4849
+  local _wifi_interface="$(
+    "$_networksetup_cmd" \
+      -listallhardwareports | \
+      /usr/bin/awk '/Wi-Fi|AirPort/ {getline; print $NF}'
+  )"
+
+
   for arg in "${_COMMAND_ARGV[@]:-}"; do
     case $arg in
       on|off|info|scan|join)
@@ -699,21 +710,14 @@ airport() {
 
   case "$_subcommand" in
     "on")
-      "$_networksetup_cmd" -setairportpower airport on
+      "$_networksetup_cmd" -setairportpower "$_wifi_interface" on && \
+        printf "Airport on\n"
       ;;
     "off")
-      "$_networksetup_cmd" -setairportpower airport off
+      "$_networksetup_cmd" -setairportpower "$_wifi_interface" off && \
+        printf "Airport off\n"
       ;;
     "join")
-      # Command references:
-      # - http://apple.stackexchange.com/a/90516
-      # - https://jamfnation.jamfsoftware.com/discussion.html?id=4849
-      local _wifi_interface="$(
-        "$_networksetup_cmd" \
-          -listallhardwareports | \
-          /usr/bin/awk '/Wi-Fi|AirPort/ {getline; print $NF}'
-      )"
-
       local _ssid="${_arguments[1]:-}"
       local _password=
 
