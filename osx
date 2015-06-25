@@ -694,8 +694,7 @@ airport() {
   # - https://jamfnation.jamfsoftware.com/discussion.html?id=4849
   local _wifi_interface="$(
     "$_networksetup_cmd" \
-      -listallhardwareports | \
-      /usr/bin/awk '/Wi-Fi|AirPort/ {getline; print $NF}'
+      -listallhardwareports | awk '/Wi-Fi|AirPort/ {getline; print $NF}'
   )"
 
 
