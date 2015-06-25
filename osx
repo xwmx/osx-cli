@@ -1090,6 +1090,30 @@ locate() {
   esac
 }
 
+
+# ------------------------------------------------------------------------ lock
+
+desc afk <<EOM
+Alias for \`$_ME lock\`
+
+For full usage information, run:
+  $_ME help lock
+EOM
+afk() {
+  lock "$*"
+}
+
+desc lock <<EOM
+Usage:
+  $_ME lock
+
+Description:
+  Lock the screen (when going AFK).
+EOM
+lock() {
+  "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
+}
+
 # ----------------------------------------------------------------- Preferences
 
 desc plistbuddy <<EOM
@@ -1200,19 +1224,6 @@ Description:
 EOM
 ql() {
   qlmanage -p "$*" > /dev/null 2>&1
-}
-
-# -------------------------------------------------------------------- Security
-
-desc afk <<EOM
-Usage:
-  $_ME afk
-
-Description:
-  Lock the screen (when going AFK)
-EOM
-afk() {
-  "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
 }
 
 # ----------------------------------------------------------------------- Sleep
