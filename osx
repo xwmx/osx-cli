@@ -884,13 +884,11 @@ Arguments:
   unmute    Unmute output.
 EOM
 _print_mute_state() {
-  local _mute_state
-  _mute_state=$(osascript -e "output muted of (get volume settings)")
+  local _mute_state=$(osascript -e "output muted of (get volume settings)")
   printf "Mute: %s\n" "${_mute_state}"
 }
 _print_current_output_volume() {
-  local _volume
-  _volume=$(osascript -e "output volume of (get volume settings)")
+  local _volume=$(osascript -e "output volume of (get volume settings)")
   printf "Output volume: %s%%\n" "${_volume}"
 }
 volume() {
@@ -1135,8 +1133,8 @@ Description:
   Hide/show hidden files in the Finder.
 EOM
 finder() {
-  _target="$1"
-  _action="$2"
+  local _target="$1"
+  local _action="$2"
   if [[ "$_target" != "hidden" ]]
   then
     _print_desc "finder"
@@ -1187,10 +1185,10 @@ Description:
   filename is provided as the second argument, run that file with jsc.
 EOM
 jsc() {
-  _jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
+  local _jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
   if [[ -e "$_jscbin" ]]
   then
-    _javascript_filename="$1"
+    local _javascript_filename="$1"
     if [[ -z "$_javascript_filename" ]]
     then
       "$_jscbin"
@@ -1213,8 +1211,8 @@ Description:
   Clean up LaunchServices to remove duplicates in the "Open With" menu.
 EOM
 launch_services() {
-  _cmd_path="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
-  _action="$1"
+  local _cmd_path="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+  local _action="$1"
 
   case "$_action" in
     "cleanup")
@@ -1239,7 +1237,7 @@ Description:
   NOTE: prefer using \`spotlight\` commands rather than \`locate\`.
 EOM
 locate() {
-  _action="$1"
+  local _action="$1"
   case "$_action" in
     "updatedb")
       sudo /usr/libexec/locate.updatedb
