@@ -1188,7 +1188,7 @@ Description:
 EOM
 jsc() {
   _jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
-  if [ -e "$_jscbin" ]
+  if [[ -e "$_jscbin" ]]
   then
     _javascript_filename="$1"
     if [[ -z "$_javascript_filename" ]]
