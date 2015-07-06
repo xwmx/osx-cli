@@ -697,8 +697,7 @@ Subcommands:
   login   Login as the specified user, aka "Fast User Switching."
   window  Go to the OS X login window.
 EOM
-_USER_MENU="/System/Library/CoreServices/Menu Extras/User.menu"
-_CGSESSION="${_USER_MENU}/Contents/Resources/CGSession"
+_CGSESSION="/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession"
 accounts() {
   _debug printf "accounts() >> start\n"
 
@@ -785,8 +784,7 @@ Subcommands:
   scan     Perform a scan for wireless networks.
   join     Join the specified network.
 EOM
-_AIRPORT_FRAMEWORK_PATH="/System/Library/PrivateFrameworks/Apple80211.framework"
-_AIRPORT_CMD="${_AIRPORT_FRAMEWORK_PATH}/Versions/A/Resources/airport"
+_AIRPORT_CMD="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport"
 airport() {
   local _networksetup_cmd="$(which networksetup)"
   local _subcommand="info"
@@ -1184,17 +1182,17 @@ Description:
   If no argument is provided, launch an interactive REPL session. If a
   filename is provided as the second argument, run that file with jsc.
 EOM
+_JSC_CMD="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
 jsc() {
-  local _jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
   if [[ -e "$_jscbin" ]]
   then
     local _javascript_filename="$1"
     if [[ -z "$_javascript_filename" ]]
     then
-      "$_jscbin"
+      "$_JSC_CMD"
     else
       _debug printf "jsc() \$_javascript_filename: %s\n" "$_javascript_filename"
-      "$_jscbin" "$_javascript_filename"
+      "$_JSC_CMD" "$_javascript_filename"
     fi
   else
     printf "JavaScriptCore.framework not found.\n"
@@ -1210,13 +1208,13 @@ Usage:
 Description:
   Clean up LaunchServices to remove duplicates in the "Open With" menu.
 EOM
+_LSREGISTER_CMD="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 launch_services() {
-  local _cmd_path="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
   local _action="$1"
 
   case "$_action" in
     "cleanup")
-      "$_cmd_path" -kill -r -domain local -domain system -domain user && \
+      "$_LSREGISTER_CMD" -kill -r -domain local -domain system -domain user && \
         killall Finder
       ;;
     *)
@@ -1472,9 +1470,9 @@ Description:
   This is just a redundant wrapper around the \`softwareupdate\` utility
   included as a bookmark. See \`man softwareupdate\` for more options.
 EOM
-_SOFTWAREUPDATE_COMMAND="$(which softwareupdate)"
+_SOFTWAREUPDATE_CMD="$(which softwareupdate)"
 softwareupdate() {
-  "$_SOFTWAREUPDATE_COMMAND" "${@:-}"
+  "$_SOFTWAREUPDATE_CMD" "${@:-}"
 }
 
 # ------------------------------------------------------------------- Spotlight
@@ -1770,12 +1768,13 @@ Usage:
 Description:
   Start, stop, or get the status of vnc aka Screen Sharing aka Remote Desktop.
 EOM
+_KICKSTART_CMD="/System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart"
 vnc() {
   local _action="$1"
   # Start and stop commands via: http://apple.stackexchange.com/q/30238
   if [[ "$_action" == "start" ]]
   then
-    sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+    sudo "$_KICKSTART_CMD" \
       -activate \
       -configure \
       -access \
@@ -1790,7 +1789,7 @@ vnc() {
       -all
   elif [[ "$_action" == "stop" ]]
   then
-    sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+    sudo "$_KICKSTART_CMD" \
       -deactivate \
       -configure \
       -access \
