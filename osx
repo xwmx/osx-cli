@@ -1329,7 +1329,7 @@ EOM
 process() {
   local _name=
   local _pid=
-  local _subcommand="status"
+  local _subcommand=
   local _arguments=()
   local _throttle_percent=
   for arg in "${_COMMAND_ARGV[@]:-}"
@@ -1392,6 +1392,9 @@ Get it from here:
       else
         kill "$_pid"
       fi
+      ;;
+    *)
+      $_ME help process
       ;;
   esac
 }
