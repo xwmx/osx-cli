@@ -668,6 +668,90 @@ commands() {
 #
 ###############################################################################
 
+# -------------------------------------------------------------------- Accounts
+
+desc "accounts" <<EOM
+Usage:
+  $_ME accounts (list | login <username> | window)
+
+Subcommands:
+  list    List login user accounts.
+  login   Login as the specified user, aka "Fast User Switching."
+  window  Go to the OS X login window.
+EOM
+_USER_MENU="/System/Library/CoreServices/Menu Extras/User.menu"
+_CGSESSION="${_USER_MENU}/Contents/Resources/CGSession"
+accounts() {
+  _debug printf "accounts() >> start\n"
+
+  local _subcommand="help"
+  local _arguments=()
+
+  for arg in "${_COMMAND_ARGV[@]:-}"; do
+    case $arg in
+      list|login|window)
+        _subcommand="$arg"
+        ;;
+      *)
+        _arguments+=($arg)
+        ;;
+    esac
+  done
+
+
+  case "$_subcommand" in
+    "list")
+      local _users_and_ids=($(dscl . list /Users uid | grep -v '^_'))
+      for _user in "${_users_and_ids[@]}"
+      do
+        local _username="$(echo "$_user" | awk '{print $1}')"
+
+        # Only print users with valid home directories, which is used here as
+        # an indication that the account is a valid login account. So far I've
+        # been unable to find a better way to list only full login user
+        # accounts.
+        local _home_directory="$(
+          dscl . -read "/Users/${_username}" NFSHomeDirectory | \
+            awk '{for (i=2; i<NF; i++) printf $i " "; print $NF}'
+        )"
+        _debug printf "accounts() \$_username: %s\n" "$_username"
+        _debug printf "accounts() \$_home_directory: %s\n" "$_home_directory"
+        if ! ( [[ "$_username" == "root" ]]         ||
+               [[ "$_username" == "daemon" ]]       ||
+               [[ "$_home_directory" =~ ^/var.* ]]  ||
+               [[ "$_home_directory" =~ ^/dev.* ]]  ||
+               [[ "$_home_directory" =~ ^/opt.* ]]
+        )
+        then
+          echo "$_username"
+        fi
+      done
+      ;;
+    "login")
+      local _user="${_ARGUMENTS[1]:-}"
+      if [[ -z "$_user" ]]
+      then
+        _die printf "User missing.\n%s\n" "$(_print_help)"
+      fi
+
+      local _user_id=$(id -u "$_user")
+      if [[ -z "$_user_id" ]]
+      then
+        _die printf "No user with that name found.\n"
+      fi
+
+      _debug printf "%s\n" "$_CGSESSION -switchToUserID $_user_id"
+      "$_CGSESSION" -switchToUserID "$_user_id"
+      ;;
+    "window")
+      "$_CGSESSION" -suspend
+      ;;
+    "help")
+      $_ME help accounts
+      ;;
+  esac
+}
+
 # --------------------------------------------------------------------- Airport
 
 desc airport <<EOM
