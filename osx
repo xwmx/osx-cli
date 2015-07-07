@@ -934,8 +934,8 @@ Usage:
 Subcommands:
   status  Current battery status.
   cycles  Number of battery cycles.
-  health  Health of the battery, using the current maximum capacity as perctage
-          of the battery's design capacity).
+  health  Health of the battery, using the current maximum capacity as
+          percentage of the battery's design capacity).
 
 Options:
   -l --long  Print longform information about the battery status.
