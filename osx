@@ -1479,11 +1479,11 @@ softwareupdate() {
 
 desc spotlight <<EOM
 Usage:
-  spotlight find      <filename>
-  spotlight filename  <filename>
-  spotlight content   <text>
-  spotlight disable
-  spotlight enable
+  $_ME spotlight find      <filename>
+  $_ME spotlight filename  <filename>
+  $_ME spotlight content   <text>
+  $_ME spotlight disable
+  $_ME spotlight enable
 
 Description:
   Spotlight searching and controls.

@@ -220,11 +220,11 @@ Description:
 
 ```
 Usage:
-  spotlight find      <filename>
-  spotlight filename  <filename>
-  spotlight content   <text>
-  spotlight disable
-  spotlight enable
+  osx spotlight find      <filename>
+  osx spotlight filename  <filename>
+  osx spotlight content   <text>
+  osx spotlight disable
+  osx spotlight enable
 
 Description:
   Spotlight searching and controls.
