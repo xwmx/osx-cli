@@ -292,7 +292,7 @@ Examples:
 
 ```
 Usage:
-osx trash ( empty [--secure] [--all] | open )
+  osx trash ( empty [--secure] [--all] | open )
 
 Subcommands:
   empty  Empty the trash.
