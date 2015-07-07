@@ -174,7 +174,8 @@ Options: (may appear before or after arguments)
   {-r | --rate} RATE
     play at playback rate
   {-q | --rQuality} QUALITY
-    set the quality used for rate-scaled playback (default is 0 - low quality, 1 - high quality)
+    set the quality used for rate-scaled playback
+    (default is 0 - low quality, 1 - high quality)
   {-d | --debug}
     debug print output
 ```
