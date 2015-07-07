@@ -1703,7 +1703,7 @@ textutil() {
 
 desc trash <<EOM
 Usage:
-$_ME trash ( empty [--secure] [--all] | open )
+  $_ME trash ( empty [--secure] [--all] | open )
 
 Subcommands:
   empty  Empty the trash.
