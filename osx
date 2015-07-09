@@ -747,7 +747,7 @@ accounts() {
       done
       ;;
     "login")
-      local _user="${_ARGUMENTS[1]:-}"
+      local _user="${_arguments[1]:-}"
       local _user_id=
 
       if [[ -z "$_user" ]]
