@@ -359,7 +359,7 @@ _load_commands() {
   do
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
-    local function_name
+    local function_name=
     function_name=$(printf "%s" "$c" | awk '{ print $3 }')
 
     _debug printf "_load_commands() \$function_name: %s\n" "$function_name"
@@ -475,10 +475,10 @@ _contains() {
 # Takes a separator and a list of items, joining that list of items with the
 # separator.
 _join() {
-  local separator
-  local target_array
-  local dirty
-  local clean
+  local separator=
+  local target_array=
+  local dirty=
+  local clean=
   separator="$1"
   target_array=(${@:2})
   dirty="$(printf "${separator}%s"  "${target_array[@]}")"
@@ -720,13 +720,16 @@ accounts() {
       local _users_and_ids=($(dscl . list /Users uid | grep -v '^_'))
       for _user in "${_users_and_ids[@]}"
       do
-        local _username="$(echo "$_user" | awk '{print $1}')"
+        local _username=
+        local _home_directory=
+
+        _username="$(echo "$_user" | awk '{print $1}')"
 
         # Only print users with valid home directories, which is used here as
         # an indication that the account is a valid login account. So far I've
         # been unable to find a better way to list only full login user
         # accounts.
-        local _home_directory="$(
+        _home_directory="$(
           dscl . -read "/Users/${_username}" NFSHomeDirectory | \
             awk '{for (i=2; i<NF; i++) printf $i " "; print $NF}'
         )"
@@ -745,12 +748,14 @@ accounts() {
       ;;
     "login")
       local _user="${_ARGUMENTS[1]:-}"
+      local _user_id=
+
       if [[ -z "$_user" ]]
       then
         _die printf "User missing.\n%s\n" "$(_print_help)"
       fi
 
-      local _user_id=$(id -u "$_user")
+      _user_id=$(id -u "$_user")
       if [[ -z "$_user_id" ]]
       then
         _die printf "No user with that name found.\n"
@@ -784,14 +789,17 @@ Subcommands:
 EOM
 _AIRPORT_CMD="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport"
 airport() {
-  local _networksetup_cmd="$(which networksetup)"
+  local _networksetup_cmd=
+  local _wifi_interface=
   local _subcommand="info"
   local _arguments=()
+
+  _networksetup_cmd="$(which networksetup)"
 
   # Command references:
   # - http://apple.stackexchange.com/a/90516
   # - https://jamfnation.jamfsoftware.com/discussion.html?id=4849
-  local _wifi_interface="$(
+  _wifi_interface="$(
     "$_networksetup_cmd" \
       -listallhardwareports | awk '/Wi-Fi|AirPort/ {getline; print $NF}'
   )"
@@ -839,16 +847,22 @@ airport() {
       "$_AIRPORT_CMD" --getinfo
       ;;
     "quality")
+      local _info=
+      local _signal=
+      local _noise=
+      local _snr=
+      local _percent=
+
       # Reference: http://apple.stackexchange.com/a/110884
-      local _info="$($_ME airport info)"
-      local _signal="$(
+      _info="$($_ME airport info)"
+      _signal="$(
         printf "%s\n" "$_info" | awk '/agrCtlRSSI/ {print $NF}'
       )"
-      local _noise="$(
+      _noise="$(
         printf "%s\n" "$_info" | awk '/agrCtlNoise/ {print $NF}'
       )"
-      local _snr="$(printf "100*(%s -(%s))\n" "$_signal" "$_noise" | bc -l)"
-      local _percent="$(printf "%s/50\n" "$_snr" | bc -l)"
+      _snr="$(printf "100*(%s -(%s))\n" "$_signal" "$_noise" | bc -l)"
+      _percent="$(printf "%s/50\n" "$_snr" | bc -l)"
       printf "%s%%\n" "${_percent%.*}"
       ;;
     "scan")
@@ -880,11 +894,13 @@ Arguments:
   unmute    Unmute output.
 EOM
 _print_mute_state() {
-  local _mute_state=$(osascript -e "output muted of (get volume settings)")
+  local _mute_state=
+  _mute_state=$(osascript -e "output muted of (get volume settings)")
   printf "Mute: %s\n" "${_mute_state}"
 }
 _print_current_output_volume() {
-  local _volume=$(osascript -e "output volume of (get volume settings)")
+  local _volume=
+  _volume=$(osascript -e "output volume of (get volume settings)")
   printf "Output volume: %s%%\n" "${_volume}"
 }
 volume() {
@@ -965,7 +981,7 @@ _ioreg_property() {
     printf "_ioreg_property(): No property key specified.\n"
     exit 1
   fi
-  local _value
+  local _value=
   _value="$(ioreg \
     -l \
     -n "$_name" \
@@ -1003,7 +1019,7 @@ battery() {
       _ioreg_property AppleSmartBattery CycleCount
       ;;
     "health")
-      local _health_percentage
+      local _health_percentage=
       _health_percentage="$(ioreg -l -n AppleSmartBattery -r | \
         awk '/MaxCapacity/{mc=$3};/DesignCapacity/{dc=$3};END{print 100*mc/dc}'
       )"
@@ -1538,7 +1554,8 @@ sshd() {
     sshd status
   elif [[ "$_action" == "status" ]]
   then
-    local _results="$(sudo launchctl list | grep com.openssh.sshd)"
+    local _results=
+    _results="$(sudo launchctl list | grep com.openssh.sshd)"
     [[ -n "$_results" ]] && printf "sshd running\n" || printf "sshd stopped\n"
   else
     _die printf "Command not recognized.\n%s\n" "$(_print_desc "sshd")"
@@ -1793,7 +1810,8 @@ vnc() {
       -off
   elif [[ "$_action" == "status" ]]
   then
-    local _results="$(pgrep ARDAgent)"
+    local _results=
+    _results="$(pgrep ARDAgent)"
     [[ -n "$_results" ]] && printf "vnc running\n" || printf "vnc stopped\n"
   else
     _die printf "Command not recognized.\n%s\n" "$(_print_desc "vnc")"
@@ -1816,7 +1834,7 @@ EOM
 windowserver() {
   if [[ "$1" == "kill" ]]
   then
-    local _kill_windowserver
+    local _kill_windowserver=
     while true
     do
       read -p "Are you sure you want to close all apps and log out? [y/n] " yn
