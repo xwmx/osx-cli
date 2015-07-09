@@ -1422,7 +1422,12 @@ Get it from here:
   http://www.willnolan.com/cputhrottle/cputhrottle.html
 "
       fi
-      cputhrottle "$_pid" "${_arguments[2]:-}"
+      _throttle_percent="${_arguments[2]:-}"
+      if [[ -z "$_throttle_percent" ]]
+      then
+        _die printf "Max usage is missing."
+      fi
+      cputhrottle "$_pid" "$_throttle_percent"
       ;;
     "kill")
       if [[ -n "$_name" ]]
