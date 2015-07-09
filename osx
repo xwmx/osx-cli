@@ -104,9 +104,7 @@ set -o pipefail
 # when expanding an array and you want to separate elements by spaces.
 # $SAFER_IFS contains the preferred settings for the program, and setting it
 # separately makes it easier to switch between the two if needed.
-DEFAULT_IFS="$IFS"
-SAFER_IFS=$'\n\t'
-IFS="$SAFER_IFS"
+IFS=$'\n\t'
 
 ###############################################################################
 # Globals
