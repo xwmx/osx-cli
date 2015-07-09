@@ -1198,7 +1198,7 @@ Description:
 EOM
 _JSC_CMD="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
 jsc() {
-  if [[ -e "$_jscbin" ]]
+  if [[ -e "$_JSC_CMD" ]]
   then
     local _javascript_filename="$1"
     if [[ -z "$_javascript_filename" ]]
