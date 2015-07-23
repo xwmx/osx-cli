@@ -339,7 +339,7 @@ Description:
 
 ```
 Usage:
-  osx volume (  <0-9> | <00-100> | mute | unmute )
+  osx volume ( <0-9> | <00-100> | mute | unmute )
 
 Arguments:
   <none>    Print the current output volume level as a percent.

@@ -923,7 +923,7 @@ play() {
 
 desc volume <<EOM
 Usage:
-  $_ME volume (  <0-9> | <00-100> | mute | unmute )
+  $_ME volume ( <0-9> | <00-100> | mute | unmute )
 
 Arguments:
   <none>    Print the current output volume level as a percent.
