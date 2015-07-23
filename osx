@@ -1413,7 +1413,7 @@ to delete every login item whose $_delete_identifier"
       osascript -e "$_delete_command"
       ;;
     "help")
-      $_ME help loginitems
+      $_ME help login-items
       ;;
   esac
 }
