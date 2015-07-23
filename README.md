@@ -6,7 +6,7 @@
 
 # osx-cli
 
-A collection of shortcuts for OS X operations.
+A collection of command line shortcuts for common OS X operations.
 
 This is a work in progress.
 
