@@ -1166,17 +1166,6 @@ More information:
 
 # ---------------------------------------------------------------------- Finder
 
-desc clean-ds-store <<EOM
-Usage:
-  $_ME clean-ds-store
-
-Description:
-  Recursively delete \`.DS_Store\` files
-EOM
-clean-ds-store() {
-  find . -type f -name '*.DS_Store' -ls -delete
-}
-
 desc finder <<EOM
 Usage:
   $_ME finder hidden ( hide | show )
