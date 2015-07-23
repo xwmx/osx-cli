@@ -1324,7 +1324,7 @@ lock() {
   "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
 }
 
-# ------------------------------------------------------------------ loginitems
+# ----------------------------------------------------------------- login-items
 
 desc login-items <<EOM
 Usage:
