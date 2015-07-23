@@ -1368,7 +1368,10 @@ login-items() {
 
   case "$_subcommand" in
     "list")
-      osascript -e 'tell application "System Events" to get every login item'
+      osascript \
+        -e 'tell application "System Events" to get every login item' | \
+        sed 's/login item //g' | \
+        sed -e $'s/, /\\\n/g'
       ;;
     "add")
       local _path=
