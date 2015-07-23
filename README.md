@@ -123,7 +123,7 @@ Usage:
   osx fans
 
 Description:
-  Display fan stats via the iStats Ruby gem.
+  Display fan stats via iStats.
 
   More information:
     https://github.com/Chris911/iStats
@@ -269,7 +269,7 @@ Usage:
   osx stats
 
 Description:
-  Display temperature, fan, and battery status via the iStats Ruby gem.
+  Display temperature, fan, and battery status via iStats.
 
   More information:
     https://github.com/Chris911/iStats
@@ -282,7 +282,7 @@ Usage:
   osx temp
 
 Description:
-  Display CPU and battery temperature via the iStats Ruby gem.
+  Display CPU and battery temperature via iStats.
 
   More information:
     https://github.com/Chris911/iStats
