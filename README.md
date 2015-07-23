@@ -149,6 +149,28 @@ Description:
   Lock the screen (when going AFK).
 ```
 
+### `loginitems`
+
+```
+Usage:
+  osx list
+  osx add <path> [--hide]
+  osx delete ( <name> | </path/to/application.app> )
+
+Subcommands:
+  list    List current login items.
+  add     Add a login item using the full path to the .app.
+  delete  Delete a login item using either the name, found via the \`list\`
+          subcommand, or the full path to the item.
+
+
+Description:
+  List, add, and delete login items.
+
+  More information:
+    https://hamstergene.github.io/post/editing-osx-login-items-cmdline/
+```
+
 ### `play`
 
 ```

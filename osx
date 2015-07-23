@@ -1284,6 +1284,100 @@ lock() {
   "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" -suspend
 }
 
+# ------------------------------------------------------------------ loginitems
+
+desc loginitems <<EOM
+Usage:
+  $_ME list
+  $_ME add <path> [--hide]
+  $_ME delete ( <name> | </path/to/application.app> )
+
+Subcommands:
+  list    List current login items.
+  add     Add a login item using the full path to the .app.
+  delete  Delete a login item using either the name, found via the \`list\`
+          subcommand, or the full path to the item.
+
+
+Description:
+  List, add, and delete login items.
+
+  More information:
+    https://hamstergene.github.io/post/editing-osx-login-items-cmdline/
+EOM
+loginitems() {
+  local _subcommand="help"
+  local _arguments=()
+  local _hide=false
+
+  for arg in "${_COMMAND_ARGV[@]:-}"
+  do
+    case $arg in
+      list|add|delete)
+        _subcommand="$arg"
+        ;;
+      --hide)
+        _hide=true
+        ;;
+      *)
+        _arguments+=($arg)
+        ;;
+    esac
+  done
+
+
+  case "$_subcommand" in
+    "list")
+      osascript -e 'tell application "System Events" to get every login item'
+      ;;
+    "add")
+      local _path=
+      local _properties=
+      local _add_command=
+
+      if [[ -n "${_arguments[1]:-}" ]]
+      then
+        _path="${_arguments[1]}"
+      else
+        _die printf "Path missing.\n"
+      fi
+
+      _properties="{path:\"$_path\", hidden:$_hide}"
+      _add_command="\
+tell application \"System Events\" \
+to make login item at end with properties $_properties"
+      _debug printf \
+        "loginitems() add \$_add_command: %s\n" \
+        "$_add_command"
+      osascript -e "$_add_command"
+      ;;
+    "delete")
+      local _delete_identifier=
+      local _delete_command=
+
+      if [[ -z "${_arguments[1]:-}" ]]
+      then
+        _die printf "No name or path provided.\n"
+      elif [[ "${_arguments[1]}" =~ /.*.app ]]
+      then
+        _delete_identifier="path is \"${_arguments[1]}\""
+      else
+        _delete_identifier="name is \"${_arguments[1]}\""
+      fi
+      _delete_command="\
+tell application \"System Events\" \
+to delete every login item whose $_delete_identifier"
+      _debug printf \
+        "loginitems delete \$_delete_command: %s\n" \
+        "$_delete_command"
+      osascript -e "$_delete_command"
+      ;;
+    "help")
+      $_ME help loginitems
+      ;;
+  esac
+}
+
 # ---------------------------------------------------------------- networksetup
 
 desc networksetup <<EOM
