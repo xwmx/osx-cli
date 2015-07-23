@@ -149,18 +149,18 @@ Description:
   Lock the screen (when going AFK).
 ```
 
-### `loginitems`
+### `login-items`
 
 ```
 Usage:
-  osx list
-  osx add <path> [--hide]
-  osx delete ( <name> | </path/to/application.app> )
+  osx login-items list
+  osx login-items add <path> [--hide]
+  osx login-items delete ( <name> | </path/to/application.app> )
 
 Subcommands:
   list    List current login items.
   add     Add a login item using the full path to the .app.
-  delete  Delete a login item using either the name, found via the \`list\`
+  delete  Delete a login item using either the name, found via the `list`
           subcommand, or the full path to the item.
 
 

@@ -1166,14 +1166,14 @@ More information:
 
 # ---------------------------------------------------------------------- Finder
 
-desc clean_ds_store <<EOM
+desc clean-ds-store <<EOM
 Usage:
-  $_ME clean_ds_store
+  $_ME clean-ds-store
 
 Description:
   Recursively delete \`.DS_Store\` files
 EOM
-clean_ds_store() {
+clean-ds-store() {
   find . -type f -name '*.DS_Store' -ls -delete
 }
 
@@ -1255,15 +1255,15 @@ jsc() {
 
 # -------------------------------------------------------------- LaunchServices
 
-desc launch_services <<EOM
+desc launch-services <<EOM
 Usage:
-  $_ME launch_services cleanup
+  $_ME launch-services cleanup
 
 Description:
   Clean up LaunchServices to remove duplicates in the "Open With" menu.
 EOM
 _LSREGISTER_CMD="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
-launch_services() {
+launch-services() {
   local _action="$1"
 
   case "$_action" in
@@ -1326,11 +1326,11 @@ lock() {
 
 # ------------------------------------------------------------------ loginitems
 
-desc loginitems <<EOM
+desc login-items <<EOM
 Usage:
-  $_ME list
-  $_ME add <path> [--hide]
-  $_ME delete ( <name> | </path/to/application.app> )
+  $_ME login-items list
+  $_ME login-items add <path> [--hide]
+  $_ME login-items delete ( <name> | </path/to/application.app> )
 
 Subcommands:
   list    List current login items.
@@ -1345,7 +1345,7 @@ Description:
   More information:
     https://hamstergene.github.io/post/editing-osx-login-items-cmdline/
 EOM
-loginitems() {
+login-items() {
   local _subcommand="help"
   local _arguments=()
   local _hide=false
