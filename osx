@@ -1242,6 +1242,91 @@ jsc() {
   fi
 }
 
+# ------------------------------------------------------------------------ kext
+
+desc kext <<EOM
+Usage:
+  $_ME kext list [--third-party]
+  $_ME kext install <path>
+  $_ME kext uninstall <kext filename>
+  $_ME kext load <path>
+  $_ME kext unload <path>
+
+Description:
+  List, install, uninstall, load, and unload kexts.
+
+  NOTE: !=> EXPERIMENTAL <=! Not recommended for use.
+EOM
+kext() {
+  local _subcommand="help"
+  local _arguments=()
+
+  for arg in "${_COMMAND_ARGV[@]:-}"
+  do
+    case $arg in
+      list|load|unload|install|uninstall)
+        _subcommand="$arg"
+        ;;
+      *)
+        _arguments+=($arg)
+        ;;
+    esac
+  done
+
+  case "$_subcommand" in
+    "list")
+      if [[ "${_arguments[1]:-}" == "--third-party" ]]
+      then
+        kextstat | grep -v com.apple
+      else
+        kextstat
+      fi
+      ;;
+    "load")
+      local _path="${_arguments[1]:-}"
+      [[ -z "$_path" ]] && die "Path missing."
+
+      sudo kextload "$_name"
+      ;;
+    "unload")
+      local _path="${_arguments[1]:-}"
+      [[ -z "$_path" ]] && die "Path missing."
+
+      sudo kextunload "$_path"
+      ;;
+    "install")
+      local _path="${_arguments[1]:-}"
+      [[ -z "$_path" ]] && die "Path missing."
+
+      local _basename
+      _basename="$(basename "$_path")"
+      [[ -z "$_basename" ]] && die "Unable to determine kext filename."
+
+      sudo cp -R "$_path" "/Library/Extensions/"
+      [[ ! -e "/Library/Extensions/$_basename" ]] && die "Error copying kext."
+      sudo chmod -R 755 "/Library/Extensions/$_basename"
+      sudo chown -R root:wheel "/Library/Extensions/$_basename"
+      sudo kextload "/Library/Extensions/$_basename"
+      ;;
+    "uninstall")
+      local _path="${_arguments[1]:-}"
+      [[ -z "$_path" ]] && die "Path missing."
+
+      sudo kextunload "$_path"
+      sudo chown "$(whoami)" "$_path"
+      if _command_exists "trash"
+      then
+        sudo "trash" "$_path"
+      else
+        sudo mv "$_path" "$HOME/.Trash/"
+      fi
+      ;;
+    "help")
+      $_ME help kext
+      ;;
+  esac
+}
+
 # -------------------------------------------------------------- LaunchServices
 
 desc launch-services <<EOM
