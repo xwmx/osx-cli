@@ -1248,7 +1248,7 @@ desc kext <<EOM
 Usage:
   $_ME kext list [--third-party]
   $_ME kext install <path>
-  $_ME kext uninstall <kext filename>
+  $_ME kext uninstall <path>
   $_ME kext load <path>
   $_ME kext unload <path>
 
