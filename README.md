@@ -139,6 +139,19 @@ Description:
   Hide/show hidden files in the Finder.
 ```
 
+### `jsc`
+
+```
+Usage:
+  osx jsc [<filename.js>]
+
+Description:
+  Run the JavaScriptCore REPL.
+
+  If no argument is provided, launch an interactive REPL session. If a
+  filename is provided as the second argument, run that file with jsc.
+```
+
 ### `lock`
 
 ```
