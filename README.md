@@ -362,3 +362,13 @@ Arguments:
   mute      Mute output.
   unmute    Unmute output.
 ```
+
+## Links
+
+- [An A-Z Index of the Apple OS X command line (ss64.com)]
+(http://ss64.com/osx/)
+- [Eight Terminal Utilities Every OS X Command Line User Should Know (mitchchn.me)]
+(http://www.mitchchn.me/2014/os-x-terminal/)
+  - [comments](https://news.ycombinator.com/item?id=10143143)
+  - [followup](http://www.mitchchn.me/2014/and-eight-hundred-more/)
+
