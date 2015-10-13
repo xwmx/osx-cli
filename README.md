@@ -372,3 +372,11 @@ Arguments:
   - [comments](https://news.ycombinator.com/item?id=10143143)
   - [followup](http://www.mitchchn.me/2014/and-eight-hundred-more/)
 
+## Related Projects
+
+- [accounts - Command line / terminal tool for common OS X user account operations.]
+(https://github.com/alphabetum/accounts)
+- [airport - A command line interface for Wi-Fi on OS X.]
+(https://github.com/alphabetum/airport)
+- [search.sh - A command line search multi-tool.]
+(https://github.com/alphabetum/search.sh)
