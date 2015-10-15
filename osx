@@ -1708,9 +1708,8 @@ softwareupdate() {
 
 desc spotlight <<EOM
 Usage:
-  $_ME spotlight find      <filename>
-  $_ME spotlight filename  <filename>
-  $_ME spotlight content   <text>
+  $_ME spotlight search ( <text> | <filename> )
+  $_ME spotlight filename <filename>
   $_ME spotlight disable
   $_ME spotlight enable
 
@@ -1719,18 +1718,18 @@ Description:
 EOM
 spotlight() {
   case "$1" in
-    filename|find)
-      shift
-      mdfind "kMDItemDisplayName == '$*'wc"
-      ;;
-    content)
+    "search")
       shift
       mdfind -interpret "$*"
       ;;
-    disable)
+    "filename")
+      shift
+      mdfind "kMDItemDisplayName == '$*'wc"
+      ;;
+    "disable")
       sudo mdutil -a -i off
       ;;
-    enable)
+    "enable")
       sudo mdutil -a -i on
       ;;
     *)

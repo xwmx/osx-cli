@@ -255,9 +255,8 @@ Description:
 
 ```
 Usage:
-  osx spotlight find      <filename>
-  osx spotlight filename  <filename>
-  osx spotlight content   <text>
+  osx spotlight search ( <text> | <filename> )
+  osx spotlight filename <filename>
   osx spotlight disable
   osx spotlight enable
 
