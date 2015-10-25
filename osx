@@ -1410,16 +1410,19 @@ desc login-items <<EOM
 Usage:
   $_ME login-items list
   $_ME login-items add <path> [--hide]
+  $_ME login-items show ( <name> | </path/to/application.app> )
   $_ME login-items delete ( <name> | </path/to/application.app> )
 
 Subcommands:
   list    List current login items.
   add     Add a login item using the full path to the .app.
+  show    Print the properties for a login item using either the name, found
+          via the \`list\` subcommand, or the full path to the item.
   delete  Delete a login item using either the name, found via the \`list\`
           subcommand, or the full path to the item.
 
 Description:
-  List, add, and delete login items.
+  List, add, show, and delete login items.
 
   More information:
     https://hamstergene.github.io/post/editing-osx-login-items-cmdline/
@@ -1432,7 +1435,7 @@ login-items() {
   for arg in "${_COMMAND_ARGV[@]:-}"
   do
     case $arg in
-      list|add|delete)
+      list|add|delete|show)
         _subcommand="$arg"
         ;;
       --hide)
@@ -1493,6 +1496,27 @@ to delete every login item whose $_delete_identifier"
         "loginitems delete \$_delete_command: %s\n" \
         "$_delete_command"
       osascript -e "$_delete_command"
+      ;;
+    "show")
+      local _show_identifier=
+      local _show_command=
+
+      if [[ -z "${_arguments[1]:-}" ]]
+      then
+        _die printf "No name or path provided.\n"
+      elif [[ "${_arguments[1]}" =~ /.*.app ]]
+      then
+        _show_identifier="path is \"${_arguments[1]}\""
+      else
+        _show_identifier="name is \"${_arguments[1]}\""
+      fi
+      _show_command="\
+tell application \"System Events\" \
+to get the properties of every login item whose $_show_identifier"
+      _debug printf \
+        "loginitems show \$_show_command: %s\n" \
+        "$_show_command"
+      osascript -e "$_show_command"
       ;;
     "help")
       $_ME help login-items
