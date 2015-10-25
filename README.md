@@ -29,12 +29,16 @@ commands`.
 
 ```
 Usage:
-  osx accounts (list | login <username> | window)
+  osx accounts (list | login <username> | logout [--force] | window)
 
 Subcommands:
   list    List login user accounts.
-  login   Login as the specified user, aka "Fast User Switching."
+  login   Log in as the specified user, aka "Fast User Switching."
+  logout  Log out the current user.
   window  Go to the OS X login window.
+
+Options:
+  --force  Suppress confirmation prompt.
 ```
 
 ### `airport`

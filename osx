@@ -734,12 +734,16 @@ commands() {
 
 desc "accounts" <<EOM
 Usage:
-  $_ME accounts (list | login <username> | window)
+  $_ME accounts (list | login <username> | logout [--force] | window)
 
 Subcommands:
   list    List login user accounts.
-  login   Login as the specified user, aka "Fast User Switching."
+  login   Log in as the specified user, aka "Fast User Switching."
+  logout  Log out the current user.
   window  Go to the OS X login window.
+
+Options:
+  --force  Suppress confirmation prompt.
 EOM
 _CGSESSION="/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession"
 accounts() {
@@ -751,7 +755,7 @@ accounts() {
   for arg in "${_COMMAND_ARGV[@]:-}"
   do
     case $arg in
-      list|login|window)
+      list|login|logout|window)
         _subcommand="$arg"
         ;;
       *)
@@ -809,6 +813,14 @@ accounts() {
 
       _debug printf "%s\n" "$_CGSESSION -switchToUserID $_user_id"
       "$_CGSESSION" -switchToUserID "$_user_id"
+      ;;
+    "logout")
+      if [[ "${_arguments[1]:-}" == "--force" ]]
+      then
+        osascript -e 'tell application "loginwindow" to  «event aevtrlgo»'
+      else
+        osascript -e 'tell app "System Events" to log out'
+      fi
       ;;
     "window")
       "$_CGSESSION" -suspend
