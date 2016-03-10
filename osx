@@ -1536,6 +1536,34 @@ to get the properties of every login item whose $_show_identifier"
   esac
 }
 
+# ---------------------------------------------------------------------- memory
+
+desc memory <<EOM
+Usage:
+  $_ME memory
+
+Description:
+  Print memory (RAM) usage information.
+EOM
+memory() {
+  # via: http://apple.stackexchange.com/a/46655
+  # NOTE: `vm_stat` is much faster, but the output requires processing to be
+  # used. More info:
+  # - http://apple.stackexchange.com/q/4286
+  # - http://apple.stackexchange.com/a/94258
+  top -l 1 -s 0 | grep PhysMem
+}
+
+desc ram <<EOM
+Alias for \`$_ME memory\`
+
+For full usage information, run:
+  $_ME help memory
+EOM
+ram() {
+  memory "$*"
+}
+
 # ---------------------------------------------------------------- networksetup
 
 desc networksetup <<EOM

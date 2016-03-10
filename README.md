@@ -190,6 +190,16 @@ Description:
     https://hamstergene.github.io/post/editing-osx-login-items-cmdline/
 ```
 
+### `memory`
+
+```
+Usage:
+  osx memory
+
+Description:
+  Print memory (RAM) usage information.
+```
+
 ### `play`
 
 ```
